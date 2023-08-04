@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
       // console.info(user)
       
       // Generate and send a JSON Web Token (JWT)
-      const token = jwt.sign({ ...user } , 'secretKey', { expiresIn: '1h' });
+      const token = jwt.sign({ ...user } , 'secretKey');
       res.json({ token });
     } catch (error) {
       console.error("Error comparing passwords:", error);
