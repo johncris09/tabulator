@@ -30,6 +30,85 @@ router.get("/getJudgeScore", async (req, res, next) => {
   }
 });
 
+router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
+  try {
+      // update rank every time score is updated of that judge
+      const query = "SELECT * FROM talent_presentation where judge = 0  ORDER BY score desc";
+      // calculate ranking in specici judge and candidate
+      db.query(query, (err, result) => {
+        if (err) {
+          console.error("Error executing MySQL query:", err);
+          res.status(500).json({ error: "Internal Server Error" });
+          return;
+        }
+  
+        let rank = 0;
+        let lastScore = false;
+        let rows = 0;
+        const y = []; // rank handler
+        const x = []; // candidate handler
+  
+        result.forEach((row) => {
+          rows++;
+          if (row.score !== null) {
+            if (lastScore !== row.score) {
+              lastScore = row.score;
+              rank = rows;
+            }
+            x.push({
+              id: row.id,
+              candidate: row.candidate,
+              rank: rank,
+            });
+  
+            y.push(rank);
+          }
+        });
+  
+        // const uarr = [...new Set(y)];
+        // const duplicate = y.filter((value, index, self) => self.indexOf(value) !== index);
+        const arr = y.reduce((acc, val) => {
+          acc[val] = (acc[val] || 0) + 1;
+          return acc;
+        }, {});
+  
+        let index = 0;
+        let average = 0;
+  
+        for (const key in arr) {
+          if (arr[key] > 1) {
+            index = key - 1;
+            let tot = 0;
+            for (let j = 0; j < arr[key]; j++) {
+              index++;
+              tot += index;
+            }
+            average = tot / arr[key];
+            index = key - 1;
+            for (let j = 0; j < arr[key]; j++) {
+              x[index].rank = average;
+              index++;
+            }
+          }
+        }
+  
+        x.forEach((row) => {
+          const updateQuery = `UPDATE ${table} SET rank = ? WHERE id = ?`;
+          const updateParams = [row.rank, row.id];
+          db.query(updateQuery, updateParams); 
+        }); 
+      });
+
+
+      // res.send('updated')
+
+
+
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.post("/", async (req, res, next) => {
   try {
