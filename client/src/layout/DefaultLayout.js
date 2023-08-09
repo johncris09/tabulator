@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { AppContent, AppFooter, AppHeader } from '../components/index'
 import ip from './../constant/ip'
 import axios from 'axios'
 import { Login } from '@mui/icons-material'
