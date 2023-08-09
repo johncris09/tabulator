@@ -15,7 +15,7 @@ router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank \
+    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status \
       FROM candidate t1 \
       LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? \
       GROUP BY t1.id;`;
@@ -103,29 +103,59 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         c.name as name,
         c.name AS candidate,
         MAX(
-            CASE
-                WHEN tp.judge = 2 THEN tp.rank
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge1"
+            ) THEN rank
             END
         ) AS judge1,
         MAX(
-            CASE
-                WHEN tp.judge = 4 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge2"
+        ) THEN rank
+        END
         ) AS judge2,
         MAX(
-            CASE
-                WHEN tp.judge = 5 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge3"
+        ) THEN rank
+        END
         ) AS judge3,
         MAX(
-            CASE
-                WHEN tp.judge = 6 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge4"
+        ) THEN rank
+        END
         ) AS judge4,
         MAX(
-            CASE
-                WHEN tp.judge = 7 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge5"
+        ) THEN rank
+        END
         ) AS judge5,
         SUM(
             CASE
@@ -138,7 +168,57 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
                 WHEN tp.judge = 0 THEN tp.rank
                 else 0
             END
-        ) AS final_rank
+        ) AS final_rank,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge1')  THEN tp.status
+            END
+        ) AS judge1_status,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge2')  THEN tp.status
+            END
+        ) AS judge2_status,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge3')  THEN tp.status
+            END
+        ) AS judge3_status,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge4')  THEN tp.status
+            END
+        ) AS judge4_status,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge5')  THEN tp.status
+            END
+        ) AS judge5_status,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge1')  THEN tp.judge
+            END
+        ) AS judge1_id,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge2')  THEN tp.judge
+            END
+        ) AS judge2_id,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge3')  THEN tp.judge
+            END
+        ) AS judge3_id,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge4')  THEN tp.judge
+            END
+        ) AS judge4_id,
+        MAX(
+          CASE
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge5')  THEN tp.judge
+            END
+        ) AS judge5_id
       FROM
           ${table} tp
           JOIN candidate c ON tp.candidate = c.id
@@ -364,6 +444,22 @@ router.post("/", async (req, res, next) => {
     });
 
     // res.status(200).json({ message: "Score saved successfully!" });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// tabulaltor will close once the score is submitted
+router.post("/lockScore", async (req, res, next) => {
+  try {
+    const { judgeId, status } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET status = ? WHERE judge = ?`;
+    const updateParams = [status, judgeId];
+    db.query(updateQuery, updateParams); 
+
+    res.status(200).json({ message: "Score Submitted!" });
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
