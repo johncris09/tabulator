@@ -15,7 +15,7 @@ import Swal from 'sweetalert2'
 import ip from './../../constant/ip'
 import axios from 'axios'
 
-const TalentPresentation = ({ userInfo }) => {
+const TopFive = ({ userInfo }) => {
   const [candidate, setCandidate] = useState([])
   const [consolidatedRank, setConsolidatedRank] = useState([])
   const [modifiedCandidateScores, setModifiedCandidateScores] = useState({})
@@ -27,7 +27,7 @@ const TalentPresentation = ({ userInfo }) => {
 
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getJudgeScore', {
+      const response = await axios.get(ip + 'top_five/getJudgeScore', {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -39,7 +39,7 @@ const TalentPresentation = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getConsolidatedScoreAndRank', {
+      const response = await axios.get(ip + 'top_five/getConsolidatedScoreAndRank', {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
@@ -73,7 +73,7 @@ const TalentPresentation = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + 'talent_presentation', scoreData)
+      await axios.post(ip + 'top_five', scoreData)
     }
   }
 
@@ -81,7 +81,7 @@ const TalentPresentation = ({ userInfo }) => {
     <>
       <CCard className="mb-4">
         <CCardHeader className="bg-white">
-          <h5>TALENT PRESENTATION</h5>
+          <h5>TOP FIVE</h5>
           {userInfo.role_type !== 'admin' && (
             <>
               <hr className="border" />
@@ -186,4 +186,4 @@ const TalentPresentation = ({ userInfo }) => {
   )
 }
 
-export default TalentPresentation
+export default TopFive

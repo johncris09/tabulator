@@ -1,7 +1,7 @@
 import express from "express";
 import db from "./../db.js";
 const router = express.Router();
-const table = "talent_presentation";
+const table = "top_five";
 
 router.get("/", async (req, res, next) => {
   const q = `SELECT * FROM ${table}`;

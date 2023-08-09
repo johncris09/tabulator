@@ -4,6 +4,7 @@ import { CButton, CCard, CCardBody, CCardImage, CCardText, CCol, CRow } from '@c
 
 import talentPresentationImage from 'src/assets/images/event/talent presentation.jpg'
 import productionAttireImage from 'src/assets/images/event/production_attire.jpg'
+import productionNumberImage from 'src/assets/images/event/production_number.jpg'
 import swimWearImage from 'src/assets/images/event/swim_wear.jpg'
 import eveningGownImage from 'src/assets/images/event/evening_gown.jpg'
 import topFiveImage from 'src/assets/images/event/top_5.jpg'
@@ -30,19 +31,46 @@ const Dashboard = ({ userInfo }) => {
       image: talentPresentationImage,
       link: 'http://localhost:3000/#/talent_presentation',
     },
+    ...(userInfo.role_type !== 'admin'
+      ? [
+          {
+            title: 'PRODUCTION NUMBER & PRODUCTION ATTIRE',
+            image: productionAttireImage,
+            link: 'http://localhost:3000/#/production_number',
+          },
+        ]
+      : [
+          {
+            title: 'PRODUCTION NUMBER',
+            image: productionAttireImage,
+            link: 'http://localhost:3000/#/production_number',
+          },
+          {
+            title: 'PRODUCTION ATTIRE',
+            image: productionNumberImage,
+            link: 'http://localhost:3000/#/production_attire',
+          },
+        ]),
     {
-      title: 'PRODUCTION NUMBER & PRODUCTION ATTIRE',
-      image: productionAttireImage,
-      link: 'http://localhost:3000/#/production_number',
+      title: 'BEST IN SWIM WEAR',
+      image: swimWearImage,
+      link: 'http://localhost:3000/#/swim_wear',
     },
-    { title: 'BEST IN SWIM WEAR', image: swimWearImage, link: 'http://localhost:3000/#/swim_wear' },
     {
       title: 'BEST IN EVENING GOWN',
       image: eveningGownImage,
       link: 'http://localhost:3000/#/evening_gown',
     },
-    { title: 'TOP FIVE', image: topFiveImage, link: 'http://localhost:3000/#/top_five' },
-    { title: 'FINAL ROUND', image: finalRoundImage, link: 'http://localhost:3000/#/final_round' },
+    {
+      title: 'TOP FIVE',
+      image: topFiveImage,
+      link: 'http://localhost:3000/#/top_five',
+    },
+    {
+      title: 'FINAL ROUND',
+      image: finalRoundImage,
+      link: 'http://localhost:3000/#/final_round',
+    },
   ]
 
   // Function to truncate or pad the menu title to a fixed length
@@ -71,7 +99,7 @@ const Dashboard = ({ userInfo }) => {
             orientation="top"
             src={menuItem.image}
             width={250}
-            height={index === 1 ? 275 : 300}
+            height={userInfo.role_type !== 'admin' && index === 1 ? 275 : 300}
           />
           <CCardBody>
             <CCardText>

@@ -1,7 +1,7 @@
 import express from "express";
 import db from "./../db.js";
 const router = express.Router();
-const table = "talent_presentation";
+const table = "swim_wear";
 
 router.get("/", async (req, res, next) => {
   const q = `SELECT * FROM ${table}`;
@@ -15,11 +15,24 @@ router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank \
-      FROM candidate t1 \
-      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? \
-      GROUP BY t1.id;`;
-    db.query(q, [judgeId], (err, result) => {
+    const q = `
+    SELECT
+        c.id as id,
+        c.number as number,
+        c.name as name,
+        sw.score as sw_score,
+        sw.rank as sw_rank,
+        tf.score as tf_score,
+        tf.rank as tf_rank
+    FROM
+        candidate c
+    LEFT JOIN ${table} sw ON
+        sw.candidate = c.id AND sw.judge = ?
+    LEFT JOIN top_five tf ON
+        tf.candidate = c.id AND tf.judge = ?
+    ORDER BY
+    c.number`;
+    db.query(q, [judgeId, judgeId, judgeId], (err, result) => {
       if (err) throw err;
       res.json(result);
     });
