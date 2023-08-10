@@ -71,7 +71,40 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   }
 });
 
-function isAllJudgeDoneScoring() {}
+router.get("/getAllJudgeScores", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+        SELECT * FROM ${table},  candidate
+        where judge != 0 
+        and candidate.id = talent_presentation.candidate
+        order by judge, candidate asc;`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      const judgeScores = {};
+      result.forEach((row) => {
+        if (!judgeScores[row.judge]) {
+          judgeScores[row.judge] = { judgeId: row.judge, scores: [] };
+        }
+        judgeScores[row.judge].scores.push({
+          candidateInfo: { number: row.number },
+          score: row.score,
+          rank: row.rank,
+        });
+      });
+
+      res.json(Object.values(judgeScores));
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
   try {
