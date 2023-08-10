@@ -1,0 +1,10 @@
+
+.centerTextRowspan {
+    padding: 8px;
+    text-align: center; /* Horizontally center the content */
+    vertical-align: middle; /* Vertically center the content */
+  }
+
+.userCriteriaTable {
+    font-size: 12px;
+}
