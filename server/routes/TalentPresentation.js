@@ -29,6 +29,50 @@ router.get("/getJudgeScore", async (req, res, next) => {
   }
 });
 
+router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+      SELECT DISTINCT
+      status
+      FROM
+          ${table} 
+      WHERE
+          judge IN(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              user.role_type = "judge"
+      );`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      // Initialize the flag
+
+      let hasUnlockedStatus = true;
+      result.forEach((row) => {
+        if (row.status === "unlocked") {
+          hasUnlockedStatus = false; // Set the flag if an unlocked status is found
+        }
+      });
+
+      res.send(hasUnlockedStatus);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+function isAllJudgeDoneScoring() {}
+
 router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
   try {
     // update rank every time score is updated of that judge
@@ -457,7 +501,7 @@ router.post("/lockScore", async (req, res, next) => {
 
     const updateQuery = `UPDATE ${table} SET status = ? WHERE judge = ?`;
     const updateParams = [status, judgeId];
-    db.query(updateQuery, updateParams); 
+    db.query(updateQuery, updateParams);
 
     res.status(200).json({ message: "Score Submitted!" });
   } catch (error) {
