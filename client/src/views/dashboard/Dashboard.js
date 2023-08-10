@@ -29,47 +29,47 @@ const Dashboard = ({ userInfo }) => {
     {
       title: 'TALENT PRESENTATION',
       image: talentPresentationImage,
-      link: 'http://localhost:3000/#/talent_presentation',
+      link: '/talent_presentation',
     },
     ...(userInfo.role_type !== 'admin'
       ? [
           {
             title: 'PRODUCTION NUMBER & PRODUCTION ATTIRE',
             image: productionAttireImage,
-            link: 'http://localhost:3000/#/production_number',
+            link: '/production_number',
           },
         ]
       : [
           {
             title: 'PRODUCTION NUMBER',
             image: productionAttireImage,
-            link: 'http://localhost:3000/#/production_number',
+            link: '/production_number',
           },
           {
             title: 'PRODUCTION ATTIRE',
             image: productionNumberImage,
-            link: 'http://localhost:3000/#/production_attire',
+            link: '/production_attire',
           },
         ]),
     {
       title: 'BEST IN SWIM WEAR',
       image: swimWearImage,
-      link: 'http://localhost:3000/#/swim_wear',
+      link: '/swim_wear',
     },
     {
       title: 'BEST IN EVENING GOWN',
       image: eveningGownImage,
-      link: 'http://localhost:3000/#/evening_gown',
+      link: '/evening_gown',
     },
     {
       title: 'TOP FIVE',
       image: topFiveImage,
-      link: 'http://localhost:3000/#/top_five',
+      link: '/top_five',
     },
     {
       title: 'FINAL ROUND',
       image: finalRoundImage,
-      link: 'http://localhost:3000/#/final_round',
+      link: '/final_round',
     },
   ]
 
@@ -105,7 +105,7 @@ const Dashboard = ({ userInfo }) => {
             <CCardText>
               <strong>{menuItem.formattedTitle}</strong>
             </CCardText>
-            <CButton href={menuItem.link}>
+            <CButton onClick={() => navigate(menuItem.link, { replace: true })}>
               {userInfo.role_type === 'admin' ? 'View Score' : 'Score'}
             </CButton>
           </CCardBody>
