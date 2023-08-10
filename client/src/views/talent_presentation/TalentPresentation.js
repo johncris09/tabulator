@@ -245,38 +245,40 @@ const TalentPresentation = ({ userInfo }) => {
                 </CButton>
               ) : (
                 <>
-                  <CButton
-                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                    color="primary"
-                    size="sm"
-                    className="float-end mx-1"
-                    shape="rounded-pill"
-                    onClick={handlePrintResult}
-                  >
-                    <FontAwesomeIcon icon={faPrint} /> Print Result
-                  </CButton>
+                  <CButtonGroup className="float-end mx-1">
+                    <CButton
+                      disabled={candidate.some(
+                        (candidateInfo) => candidateInfo.status === 'locked',
+                      )}
+                      color="primary"
+                      size="sm"
+                      onClick={handlePrintResult}
+                    >
+                      <FontAwesomeIcon icon={faPrint} /> Print Result
+                    </CButton>
 
-                  <CButton
-                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                    color="primary"
-                    size="sm"
-                    variant="outline"
-                    className="float-end mx-1"
-                    shape="rounded-pill"
-                    onClick={handlePrintSummary}
-                  >
-                    <FontAwesomeIcon icon={faPrint} /> Print Summary
-                  </CButton>
-                  <CButton
-                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                    color="primary"
-                    size="sm"
-                    className="float-end mx-1"
-                    shape="rounded-pill"
-                    onClick={handlePrintJudgeScore}
-                  >
-                    <FontAwesomeIcon icon={faPrint} /> Print The Judge&apos;s Score
-                  </CButton>
+                    <CButton
+                      disabled={candidate.some(
+                        (candidateInfo) => candidateInfo.status === 'locked',
+                      )}
+                      color="primary"
+                      size="sm"
+                      variant="outline"
+                      onClick={handlePrintSummary}
+                    >
+                      <FontAwesomeIcon icon={faPrint} /> Print Summary
+                    </CButton>
+                    <CButton
+                      disabled={candidate.some(
+                        (candidateInfo) => candidateInfo.status === 'locked',
+                      )}
+                      color="primary"
+                      size="sm"
+                      onClick={handlePrintJudgeScore}
+                    >
+                      <FontAwesomeIcon icon={faPrint} /> Print The Judge&apos;s Score
+                    </CButton>
+                  </CButtonGroup>
                 </>
               )}
             </CCol>
@@ -309,6 +311,7 @@ const TalentPresentation = ({ userInfo }) => {
         </CCardHeader>
         <CCardBody>
           <CTable
+            responsive
             striped
             hover
             bordered={userInfo.role_type === 'admin' && true}
