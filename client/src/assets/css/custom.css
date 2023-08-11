@@ -8,3 +8,33 @@
 .userCriteriaTable {
     font-size: 12px;
 }
+.container {
+  position: relative;
+  height: 300px; /* Adjust the height of the container as needed */
+}
+.bottom-div {
+  position: absolute;
+  bottom: 0;
+}
+
+
+@media print {
+
+  .tableSummary{
+    margin-left: 50px;
+    margin-right: 50px;
+    width: 1035px;
+  }
+  .tablePerJudge{
+    margin-left: 50px;
+    margin-right: 50px;
+    width: 700px; 
+  }
+ 
+  .printPerJudgePage{ 
+    page-break-before: always;  
+  }
+}
+
+
+  
