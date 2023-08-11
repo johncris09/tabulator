@@ -6,8 +6,7 @@ const router = express.Router();
 const table = "user";
 
 router.get("/", async (req, res, next) => {
-  const q =
-    "SELECT * FROM " + table + " ORDER BY timestamp desc";
+  const q = `SELECT * FROM ${table}`
   db.query(q, (err, result) => {
     if (err) throw err;
     res.json(result);

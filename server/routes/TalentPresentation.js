@@ -33,19 +33,31 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   try {
     // return true
     const query = `
-      SELECT DISTINCT
-      status
-      FROM
-          ${table} 
-      WHERE
-          judge IN(
-          SELECT
-              id
+      SELECT
+              COUNT(count_status) AS total_count
           FROM
-              user
+              (
+              SELECT
+                  judge,
+                  COUNT(
+              STATUS
+              ) AS count_status
+          FROM 
+              ${table} 
           WHERE
-              user.role_type = "judge"
-      );`;
+              judge IN(
+              SELECT
+                  id
+              FROM
+                  user
+              WHERE
+                  role_type = "judge"
+          ) AND
+          STATUS
+              = "locked"
+          GROUP BY
+              judge
+          ) AS subquery; `;
 
     db.query(query, (err, result) => {
       if (err) {
@@ -54,14 +66,13 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
         return;
       }
 
-      // Initialize the flag
-
-      let hasUnlockedStatus = true;
-      result.forEach((row) => {
-        if (row.status === "unlocked") {
-          hasUnlockedStatus = false; // Set the flag if an unlocked status is found
-        }
-      });
+      // Initialize the fl
+      let hasUnlockedStatus = false;
+      const total_count = result[0]["total_count"];
+ 
+      if (total_count === 5) {
+        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
+      }
 
       res.send(hasUnlockedStatus);
     });

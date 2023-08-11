@@ -15,13 +15,101 @@ router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank \
+    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status \
       FROM candidate t1 \
       LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? \
       GROUP BY t1.id;`;
     db.query(q, [judgeId], (err, result) => {
       if (err) throw err;
       res.json(result);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+      SELECT
+              COUNT(count_status) AS total_count
+          FROM
+              (
+              SELECT
+                  judge,
+                  COUNT(
+              STATUS
+              ) AS count_status
+          FROM 
+              ${table} 
+          WHERE
+              judge IN(
+              SELECT
+                  id
+              FROM
+                  user
+              WHERE
+                  role_type = "judge"
+          ) AND
+          STATUS
+              = "locked"
+          GROUP BY
+              judge
+          ) AS subquery; `;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      // Initialize the fl
+      let hasUnlockedStatus = false;
+      const total_count = result[0]["total_count"];
+ 
+      if (total_count === 5) {
+        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
+      }
+
+      res.send(hasUnlockedStatus);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/getAllJudgeScores", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+        SELECT * FROM ${table},  candidate
+        where judge != 0 
+        and candidate.id = top_five.candidate
+        order by judge, candidate asc;`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      const judgeScores = {};
+      result.forEach((row) => {
+        if (!judgeScores[row.judge]) {
+          judgeScores[row.judge] = { judgeId: row.judge, scores: [] };
+        }
+        judgeScores[row.judge].scores.push({
+          candidateInfo: { number: row.number },
+          score: row.score,
+          rank: row.rank,
+        });
+      });
+
+      res.json(Object.values(judgeScores));
     });
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -103,45 +191,125 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         c.name as name,
         c.name AS candidate,
         MAX(
-            CASE
-                WHEN tp.judge = 2 THEN tp.rank
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge1"
+            ) THEN rank
             END
         ) AS judge1,
         MAX(
-            CASE
-                WHEN tp.judge = 4 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge2"
+        ) THEN rank
+        END
         ) AS judge2,
         MAX(
-            CASE
-                WHEN tp.judge = 5 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge3"
+        ) THEN rank
+        END
         ) AS judge3,
         MAX(
-            CASE
-                WHEN tp.judge = 6 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge4"
+        ) THEN rank
+        END
         ) AS judge4,
         MAX(
-            CASE
-                WHEN tp.judge = 7 THEN tp.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge5"
+        ) THEN rank
+        END
         ) AS judge5,
         SUM(
             CASE
-                WHEN tp.judge = 0 THEN tp.score
+                WHEN tf.judge = 0 THEN tf.score
                 ELSE 0
             END
         ) AS total_score,
         MAX(
             CASE
-                WHEN tp.judge = 0 THEN tp.rank
+                WHEN tf.judge = 0 THEN tf.rank
                 else 0
             END
-        ) AS final_rank
+        ) AS final_rank,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.status
+            END
+        ) AS judge1_status,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.status
+            END
+        ) AS judge2_status,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.status
+            END
+        ) AS judge3_status,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.status
+            END
+        ) AS judge4_status,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.status
+            END
+        ) AS judge5_status,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.judge
+            END
+        ) AS judge1_id,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.judge
+            END
+        ) AS judge2_id,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.judge
+            END
+        ) AS judge3_id,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.judge
+            END
+        ) AS judge4_id,
+        MAX(
+          CASE
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.judge
+            END
+        ) AS judge5_id
       FROM
-          ${table} tp
-          JOIN candidate c ON tp.candidate = c.id
+          ${table} tf
+          JOIN candidate c ON tf.candidate = c.id
       GROUP BY
           c.name
       ORDER BY
@@ -364,6 +532,22 @@ router.post("/", async (req, res, next) => {
     });
 
     // res.status(200).json({ message: "Score saved successfully!" });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// tabulaltor will close once the score is submitted
+router.post("/lockScore", async (req, res, next) => {
+  try {
+    const { judgeId, status } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET status = ? WHERE judge = ?`;
+    const updateParams = [status, judgeId];
+    db.query(updateQuery, updateParams);
+
+    res.status(200).json({ message: "Score Submitted!" });
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
