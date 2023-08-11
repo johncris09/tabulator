@@ -17,7 +17,7 @@ import axios from 'axios'
 import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 
-const TalentPresentationPrintSummary = () => {
+const EveningGownPrintPerJudge = () => {
   const [judgeScores, setJudgeScores] = useState([])
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const TalentPresentationPrintSummary = () => {
 
   const fetchAllJudgeScores = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getAllJudgeScores')
+      const response = await axios.get(ip + 'evening_gown/getAllJudgeScores')
       setJudgeScores(response.data) // Assuming the response is an array of judge score objects
       console.info(response.data)
     } catch (error) {
@@ -91,7 +91,7 @@ const TalentPresentationPrintSummary = () => {
           </CRow>
 
           <div className="text-center my-5">
-            <h5>Talent Presentation Judge&apos;s Score</h5>
+            <h5>Best in Evening Gown Judge&apos;s Score</h5>
           </div>
           <CTable bordered className="table-sm tablePerJudge mb-5" borderColor="dark">
             <CTableHead style={{ background: 'orange' }}>
@@ -139,4 +139,4 @@ const TalentPresentationPrintSummary = () => {
   )
 }
 
-export default TalentPresentationPrintSummary
+export default EveningGownPrintPerJudge

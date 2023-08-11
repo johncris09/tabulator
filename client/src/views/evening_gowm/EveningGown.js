@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
+  CButton,
+  CButtonGroup,
   CCard,
   CCardBody,
   CCardHeader,
+  CCol,
   CFormInput,
+  CRow,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -14,8 +19,12 @@ import {
 import Swal from 'sweetalert2'
 import ip from './../../constant/ip'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-svg-icons'
 
 const EveningGown = ({ userInfo }) => {
+  const eveningGownInputRefs = useRef([])
+  const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
   const [consolidatedRank, setConsolidatedRank] = useState([])
   const [modifiedEveningGownCandidateScores, setModifiedEveningGownCandidateScores] = useState({})
@@ -26,12 +35,17 @@ const EveningGown = ({ userInfo }) => {
     fetchConsolidatedScoreAndRank()
   }, [candidate])
 
+  const handleEveningGownRef = (index, ref) => {
+    eveningGownInputRefs.current[index] = ref
+  }
+
   const fetchCandidate = async () => {
     try {
       const response = await axios.get(ip + 'evening_gown/getJudgeScore', {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
+      console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -92,11 +106,182 @@ const EveningGown = ({ userInfo }) => {
     }
   }
 
+  const handleToggleLockScore = async (judgeNo, isLocked) => {
+    if (isLocked) {
+      Swal.fire({
+        title: 'Enter Secret Key To Unlock',
+        input: 'password',
+        icon: 'info',
+        customClass: {
+          validationMessage: 'my-validation-message',
+        },
+        preConfirm: (value) => {
+          if (!value) {
+            Swal.showValidationMessage('This field is required')
+          }
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Unlock',
+      }).then(async function (result) {
+        if (result.value) {
+          if (result.value === 'MIS1234') {
+            const lockData = {
+              judgeId: judgeNo,
+              status: 'unlocked',
+            }
+
+            await axios.post(ip + 'evening_gown/lockScore', lockData)
+
+            Swal.fire({
+              title: 'Success!',
+              html: 'Unlocked successfully!',
+              icon: 'success',
+            })
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              html: 'Invalid Secrey Key',
+              icon: 'error',
+            })
+          }
+        }
+      })
+    } else {
+      Swal.fire({
+        html: 'Nothing to unlocked',
+        icon: 'info',
+      })
+    }
+  }
+
+  const handleEveningGownScoreSubmit = async () => {
+    // Check if at least one input is empty
+    let allInputsFilled = true // Assume all inputs are filled initially
+
+    for (let i = 0; i < eveningGownInputRefs.current.length; i++) {
+      const input = eveningGownInputRefs.current[i]
+      if (!input || !input.value) {
+        allInputsFilled = false // Found an empty input
+        break // No need to continue checking, one empty input is enough to fail
+      }
+    }
+    if (allInputsFilled) {
+      Swal.fire({
+        title: 'Is this your final Score?',
+        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, submit it!',
+      }).then(async function (result) {
+        if (result.value) {
+          const lockData = {
+            judgeId: userInfo.id,
+            status: 'locked',
+          }
+
+          const response = await axios.post(ip + 'evening_gown/lockScore', lockData)
+
+          Swal.fire({
+            title: 'Success!',
+            html: response.data.message,
+            icon: 'success',
+          })
+        }
+      })
+    } else {
+      Swal.fire({
+        title: 'Error!',
+        html: 'All inputs must filled in',
+        icon: 'error',
+      })
+    }
+  }
+
+  const handlePrintJudgeScore = async () => {
+    // check if all judge is done scoring
+    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+
+    if (isAllJudgeDoneScoring.data) {
+      navigate('/evening_gown/per_judge')
+    } else {
+      Swal.fire({
+        title: 'Unavailable this time',
+        icon: 'error',
+        text: 'Please wait until all judges have completed their scoring.',
+      })
+    }
+  }
+  const handlePrintSummary = async () => {
+    // check if all judge is done scoring
+    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+
+    if (isAllJudgeDoneScoring.data) {
+      // alert('print')
+      navigate('/evening_gown/summary')
+    } else {
+      Swal.fire({
+        title: 'Unavailable this time',
+        icon: 'error',
+        text: 'Please wait until all judges have completed their scoring.',
+      })
+    }
+  }
+  const handlePrintResult = async () => {
+    // check if all judge is done scoring
+    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+
+    if (isAllJudgeDoneScoring.data) {
+      alert('print')
+    } else {
+      Swal.fire({
+        title: 'Unavailable this time',
+        icon: 'error',
+        text: 'Please wait until all judges have completed their scoring.',
+      })
+    }
+  }
+
   return (
     <>
       <CCard className="mb-4">
         <CCardHeader className="bg-white">
-          <h5>BEST IN EVENING GOWN</h5>
+          <CRow className="justify-content-between">
+            <CCol>
+              <h5>BEST IN EVENING GOWN</h5>
+            </CCol>
+            <CCol>
+              {userInfo.role_type === 'admin' && (
+                <CButtonGroup className="float-end mx-1">
+                  <CButton
+                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
+                    color="primary"
+                    size="sm"
+                    onClick={handlePrintJudgeScore}
+                  >
+                    <FontAwesomeIcon icon={faPrint} /> Print The Judge&apos;s Score
+                  </CButton>
+
+                  <CButton
+                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
+                    color="primary"
+                    size="sm"
+                    variant="outline"
+                    onClick={handlePrintSummary}
+                  >
+                    <FontAwesomeIcon icon={faPrint} /> Print Summary
+                  </CButton>
+                  <CButton
+                    disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
+                    color="primary"
+                    size="sm"
+                    onClick={handlePrintResult}
+                  >
+                    <FontAwesomeIcon icon={faPrint} /> Print Result
+                  </CButton>
+                </CButtonGroup>
+              )}
+            </CCol>
+          </CRow>
         </CCardHeader>
         <CCardBody>
           {/* Criteria */}
@@ -113,12 +298,12 @@ const EveningGown = ({ userInfo }) => {
                   </CTableHeaderCell>
                 </CTableRow>
                 <CTableRow>
-                  <CTableHeaderCell>Best in Swim Wear</CTableHeaderCell>
+                  <CTableHeaderCell>Best in Evening Gown</CTableHeaderCell>
                   <CTableDataCell>
                     Each candidate will be rated 1 to 10, 1 being the lowest and 10 being the
                     highest based on{' '}
                     <strong>
-                      Attire to Candidate&apos;s Match, Poise and Carriage and General Beauty.
+                      Attire to Candidate&apos;s Match, Execution and Projection and General Beauty.
                     </strong>
                   </CTableDataCell>
                 </CTableRow>
@@ -139,26 +324,180 @@ const EveningGown = ({ userInfo }) => {
           <CTable striped hover bordered borderColor={userInfo.role_type === 'admin' ? 'info' : ''}>
             <CTableHead color="info" stripedColumns>
               {userInfo.role_type === 'admin' ? (
-                <CTableRow className="text-center">
-                  <CTableHeaderCell scope="col">Candidate #</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Judge 1</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Judge 2</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Judge 3</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Judge 4</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Judge 5</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Total Score</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Final Rank</CTableHeaderCell>
-                </CTableRow>
-              ) : (
                 <>
-                  <CTableRow className="text-center" color="warning">
-                    <CTableHeaderCell></CTableHeaderCell>
-                    <CTableHeaderCell colSpan="2">Evening Gown</CTableHeaderCell>
-                    <CTableHeaderCell colSpan="2"> Top Five</CTableHeaderCell>
+                  <CTableRow className="text-center">
+                    <CTableHeaderCell rowSpan={2} scope="col" className="centerTextRowspan">
+                      Candidate #
+                    </CTableHeaderCell>
+                    <CTableHeaderCell rowSpan={2} scope="col" className="centerTextRowspan">
+                      Name
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Judge 1</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Judge 2 </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Judge 3</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Judge 4</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Judge 5</CTableHeaderCell>
+                    <CTableHeaderCell rowSpan={2} scope="col" className="centerTextRowspan">
+                      Total Score
+                    </CTableHeaderCell>
+                    <CTableHeaderCell rowSpan={2} scope="col" className="centerTextRowspan">
+                      Final Rank
+                    </CTableHeaderCell>
                   </CTableRow>
                   <CTableRow className="text-center">
-                    <CTableHeaderCell>Candidate #</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">
+                      <FontAwesomeIcon
+                        color={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge1_status === 'locked',
+                          )
+                            ? 'green'
+                            : 'red'
+                        }
+                        onClick={() => {
+                          const judgeId = consolidatedRank[0].judge1_id
+                          const hasLockedStatus = consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge1_status === 'locked',
+                          )
+                          handleToggleLockScore(judgeId, hasLockedStatus)
+                        }}
+                        icon={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge1_status === 'locked',
+                          )
+                            ? faLock
+                            : faLockOpen
+                        }
+                      />
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">
+                      <FontAwesomeIcon
+                        color={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge2_status === 'locked',
+                          )
+                            ? 'green'
+                            : 'red'
+                        }
+                        onClick={() => {
+                          const judgeId = consolidatedRank[0].judge2_id
+                          const hasLockedStatus = consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge2_status === 'locked',
+                          )
+                          handleToggleLockScore(judgeId, hasLockedStatus)
+                        }}
+                        icon={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge2_status === 'locked',
+                          )
+                            ? faLock
+                            : faLockOpen
+                        }
+                      />
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">
+                      <FontAwesomeIcon
+                        color={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge3_status === 'locked',
+                          )
+                            ? 'green'
+                            : 'red'
+                        }
+                        onClick={() => {
+                          const judgeId = consolidatedRank[0].judge3_id
+                          const hasLockedStatus = consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge3_status === 'locked',
+                          )
+                          handleToggleLockScore(judgeId, hasLockedStatus)
+                        }}
+                        icon={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge3_status === 'locked',
+                          )
+                            ? faLock
+                            : faLockOpen
+                        }
+                      />
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">
+                      <FontAwesomeIcon
+                        color={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge4_status === 'locked',
+                          )
+                            ? 'green'
+                            : 'red'
+                        }
+                        onClick={() => {
+                          const judgeId = consolidatedRank[0].judge4_id
+                          const hasLockedStatus = consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge4_status === 'locked',
+                          )
+                          handleToggleLockScore(judgeId, hasLockedStatus)
+                        }}
+                        icon={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge4_status === 'locked',
+                          )
+                            ? faLock
+                            : faLockOpen
+                        }
+                      />
+                    </CTableHeaderCell>
+                    <CTableHeaderCell scope="col">
+                      <FontAwesomeIcon
+                        color={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge5_status === 'locked',
+                          )
+                            ? 'green'
+                            : 'red'
+                        }
+                        onClick={() => {
+                          const judgeId = consolidatedRank[0].judge5_id
+                          const hasLockedStatus = consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge5_status === 'locked',
+                          )
+                          handleToggleLockScore(judgeId, hasLockedStatus)
+                        }}
+                        icon={
+                          consolidatedRank.some(
+                            (candidateInfo) => candidateInfo.judge5_status === 'locked',
+                          )
+                            ? faLock
+                            : faLockOpen
+                        }
+                      />
+                    </CTableHeaderCell>
+                  </CTableRow>
+                </>
+              ) : (
+                <>
+                  <CTableRow className="text-center">
+                    <CTableHeaderCell rowSpan={3} className="centerTextRowspan">
+                      Candidate #
+                    </CTableHeaderCell>
+                    <CTableHeaderCell colSpan="2">Best in Evening Gown</CTableHeaderCell>
+                    <CTableHeaderCell rowSpan={2} colSpan="2" className="centerTextRowspan">
+                      Top Five
+                    </CTableHeaderCell>
+                  </CTableRow>
+                  <CTableRow className="text-center">
+                    <CTableHeaderCell colSpan="2">
+                      <CButton
+                        disabled={candidate.some(
+                          (candidateInfo) => candidateInfo.ev_status === 'locked',
+                        )}
+                        size="sm"
+                        color="primary"
+                        onClick={handleEveningGownScoreSubmit}
+                      >
+                        <FontAwesomeIcon icon={faCheck} /> Submit Scores
+                      </CButton>
+                    </CTableHeaderCell>
+                  </CTableRow>
+                  <CTableRow className="text-center">
                     <CTableHeaderCell>Score</CTableHeaderCell>
                     <CTableHeaderCell>Rank</CTableHeaderCell>
                     <CTableHeaderCell>Score</CTableHeaderCell>
@@ -192,6 +531,11 @@ const EveningGown = ({ userInfo }) => {
                       <CTableDataCell>{candidateInfo.number}</CTableDataCell>
                       <CTableDataCell>
                         <CFormInput
+                          ref={(ref) => handleEveningGownRef(index, ref)}
+                          readOnly={candidateInfo.ev_status === 'locked' && true}
+                          style={
+                            candidateInfo.ev_status === 'locked' ? { background: '#F9F5F6' } : {}
+                          }
                           className="text-center"
                           type="number"
                           min="0"

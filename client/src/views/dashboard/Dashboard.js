@@ -42,12 +42,12 @@ const Dashboard = ({ userInfo }) => {
       : [
           {
             title: 'PRODUCTION NUMBER',
-            image: productionAttireImage,
+            image: productionNumberImage,
             link: '/production_number',
           },
           {
             title: 'PRODUCTION ATTIRE',
-            image: productionNumberImage,
+            image: productionAttireImage,
             link: '/production_attire',
           },
         ]),

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -21,13 +21,10 @@ import GetErrorMessage from './../../../helper/GetErrorMessage'
 const Login = () => {
   const table = 'login'
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [token, setToken] = useState('')
   const [validated, setValidated] = useState(false)
   const [formData, setFormData] = useState({
     username: 'admin',
-    password: 'admin',
+    password: 'tabulator',
   })
 
   useEffect(() => {

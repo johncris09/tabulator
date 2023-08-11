@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   CButton,
   CButtonGroup,
@@ -19,18 +20,12 @@ import Swal from 'sweetalert2'
 import ip from './../../constant/ip'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faCheck,
-  faLock,
-  faLockOpen,
-  faPlusCircle,
-  faPrint,
-} from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-svg-icons'
 import './../../assets/css/custom.css'
 
 const TalentPresentation = ({ userInfo }) => {
   const inputRefs = useRef([])
-
+  const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
   const [consolidatedRank, setConsolidatedRank] = useState([])
   const [modifiedCandidateScores, setModifiedCandidateScores] = useState({})
@@ -49,6 +44,7 @@ const TalentPresentation = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
+      console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -56,9 +52,7 @@ const TalentPresentation = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getConsolidatedScoreAndRank', {
-        params: { judgeId: userInfo.id },
-      })
+      const response = await axios.get(ip + 'talent_presentation/getConsolidatedScoreAndRank')
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -187,7 +181,7 @@ const TalentPresentation = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/talent_presentation/per_judge')
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -201,7 +195,8 @@ const TalentPresentation = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      // alert('print')
+      navigate('/talent_presentation/summary')
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -252,9 +247,9 @@ const TalentPresentation = ({ userInfo }) => {
                       )}
                       color="primary"
                       size="sm"
-                      onClick={handlePrintResult}
+                      onClick={handlePrintJudgeScore}
                     >
-                      <FontAwesomeIcon icon={faPrint} /> Print Result
+                      <FontAwesomeIcon icon={faPrint} /> Print The Judge&apos;s Score
                     </CButton>
 
                     <CButton
@@ -274,9 +269,9 @@ const TalentPresentation = ({ userInfo }) => {
                       )}
                       color="primary"
                       size="sm"
-                      onClick={handlePrintJudgeScore}
+                      onClick={handlePrintResult}
                     >
-                      <FontAwesomeIcon icon={faPrint} /> Print The Judge&apos;s Score
+                      <FontAwesomeIcon icon={faPrint} /> Print Result
                     </CButton>
                   </CButtonGroup>
                 </>
