@@ -69,7 +69,7 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
       // Initialize the fl
       let hasUnlockedStatus = false;
       const total_count = result[0]["total_count"];
- 
+
       if (total_count === 5) {
         hasUnlockedStatus = true; // Set the flag if an unlocked status is found
       }
@@ -537,6 +537,87 @@ router.post("/", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+router.post("/insertToFinalRank", async (req, res, next) => {
+  try {
+    const q = `
+      SELECT
+          candidate.id,
+          candidate.number,
+          candidate.name,
+          top_five.rank
+      FROM
+          candidate
+      JOIN top_five ON top_five.candidate = candidate.id
+      WHERE
+          judge = 0 AND score != 0
+      ORDER BY
+          rank ASC;`;
+
+    db.query(q, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      const maxRank = 5;
+      let rank = 0;
+      const ranks = {};
+      const processedResult = [];
+
+      for (const row of result) {
+        const { id, rank: candidateRank, number, name } = row;
+
+        ranks[candidateRank] ??= ++rank;
+
+        if (ranks[candidateRank] > maxRank) {
+          break;
+        }
+
+        processedResult.push({
+          candidateId: id,
+        });
+      }
+
+      processedResult.forEach(async (row) => { 
+
+        // Query to check if the record exists for the given judgeId and candidateId
+        const countQuery = `SELECT COUNT(*) AS numRows FROM final_round WHERE candidate = ?`;
+
+        // Use a Promise to handle the database query asynchronously
+        const numRows = new Promise((resolve, reject) => {
+          db.query(countQuery, [ row.candidateId], function (err, results) {
+            if (err) {
+              reject(err);
+            } else {
+              const length = results[0].numRows;
+              resolve(length);
+            }
+          });
+        });
+
+        // Await the Promise to get the result
+        const result = await numRows;
+        if (result < 1) {
+          const insertQuery = `INSERT INTO final_round (judge, candidate) VALUES (?, ?)`;
+          const insertParams = [0, row.candidateId];
+          await db.query(insertQuery, insertParams);
+        }
+      });
+    });
+
+
+    res.status(200).json({ message: "Candidates successfully inserted to Final Round!" });
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 // tabulaltor will close once the score is submitted
 router.post("/lockScore", async (req, res, next) => {

@@ -44,7 +44,6 @@ const TopFive = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
-      console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -219,6 +218,27 @@ const TopFive = ({ userInfo }) => {
       })
     }
   }
+  const handleSubmitToFinalRound = async () => {
+    // check if all judge is done scoring
+    const isAllJudgeDoneScoring = await axios.get(ip + 'top_five/isAllJudgeDoneScoring')
+
+    if (isAllJudgeDoneScoring.data) {
+      // insertToFinalRank
+      const insertToFinalRank = await axios.post(ip + 'top_five/insertToFinalRank')
+      console.info(insertToFinalRank)
+      Swal.fire({
+        title: 'Success!',
+        text: insertToFinalRank.data.message,
+        icon: 'success',
+      })
+    } else {
+      Swal.fire({
+        title: 'Unavailable this time',
+        icon: 'error',
+        text: 'Please wait until all judges have completed their scoring.',
+      })
+    }
+  }
 
   return (
     <>
@@ -272,6 +292,17 @@ const TopFive = ({ userInfo }) => {
                       onClick={handlePrintResult}
                     >
                       <FontAwesomeIcon icon={faPrint} /> Print Result
+                    </CButton>
+                    <CButton
+                      disabled={candidate.some(
+                        (candidateInfo) => candidateInfo.status === 'locked',
+                      )}
+                      color="danger"
+                      className="text-white"
+                      size="sm"
+                      onClick={handleSubmitToFinalRound}
+                    >
+                      <FontAwesomeIcon icon={faPrint} /> Insert to Final Round
                     </CButton>
                   </CButtonGroup>
                 </>
