@@ -31,6 +31,19 @@
     width: 700px; 
   }
  
+  .final_result_container {
+    margin-top: 600px;
+    width:100%;
+    height:100%;
+  }
+  .tableFinalResult{
+    /* margin-left: 50px;
+    margin-right: 50px; */
+    /* margin-left: 150px; */
+    width: 500px;
+
+    margin: 0 auto; /* or margin: 0 auto 0 auto */
+  }
   .printPerJudgePage{ 
     page-break-before: always;  
   }
