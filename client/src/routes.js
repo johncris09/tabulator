@@ -9,6 +9,7 @@ const ProductionAttire = React.lazy(() => import('./views/production_attire/Prod
 const SwimWear = React.lazy(() => import('./views/swim_wear/SwimWear'))
 const EveningGown = React.lazy(() => import('./views/evening_gowm/EveningGown'))
 const TopFive = React.lazy(() => import('./views/top_five/TopFive'))
+const FinalRound = React.lazy(() => import('./views/final_round/FinalRound'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -18,6 +19,7 @@ const routes = [
   { path: '/swim_wear', name: 'Swim Wear', element: SwimWear },
   { path: '/evening_gown', name: 'Evening Gown', element: EveningGown },
   { path: '/top_five', name: 'Top Five', element: TopFive },
+  { path: '/final_round', name: 'Final Round', element: FinalRound },
 ]
 
 export default routes

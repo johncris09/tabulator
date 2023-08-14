@@ -215,7 +215,6 @@ const SwimWear = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'swim_wear/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      // alert('print')
       navigate('/swim_wear/summary')
     } else {
       Swal.fire({
@@ -230,7 +229,7 @@ const SwimWear = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'swim_wear/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/swim_wear/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',

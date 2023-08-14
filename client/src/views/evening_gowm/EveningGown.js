@@ -216,7 +216,6 @@ const EveningGown = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      // alert('print')
       navigate('/evening_gown/summary')
     } else {
       Swal.fire({
@@ -231,7 +230,7 @@ const EveningGown = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/evening_gown/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -303,7 +302,7 @@ const EveningGown = ({ userInfo }) => {
                     Each candidate will be rated 1 to 10, 1 being the lowest and 10 being the
                     highest based on{' '}
                     <strong>
-                      Attire to Candidate&apos;s Match, Execution and Projection and General Beauty.
+                      Attire to Candidate&apos;s Match, Poise and Carriage and General Beauty.
                     </strong>
                   </CTableDataCell>
                 </CTableRow>

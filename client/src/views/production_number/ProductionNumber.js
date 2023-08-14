@@ -290,7 +290,7 @@ const ProductionNumber = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'production_number/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/production_number/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',

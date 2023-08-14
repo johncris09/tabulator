@@ -59,6 +59,7 @@ const TopFive = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score) => {
+    console.info(score)
     if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
@@ -209,7 +210,7 @@ const TopFive = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'top_five/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/top_five/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -223,14 +224,24 @@ const TopFive = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'top_five/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      // insertToFinalRank
-      const insertToFinalRank = await axios.post(ip + 'top_five/insertToFinalRank')
-      console.info(insertToFinalRank)
-      Swal.fire({
-        title: 'Success!',
-        text: insertToFinalRank.data.message,
-        icon: 'success',
-      })
+      // insertToFinalRound
+
+      const isInsertedToFinalRound = await axios.get(ip + 'top_five/isInsertedToFinalRound')
+
+      if (isInsertedToFinalRound) {
+        Swal.fire({
+          title: 'Info!',
+          text: 'Already Inserted to Final Round',
+          icon: 'info',
+        })
+      } else {
+        const insertToFinalRound = await axios.post(ip + 'top_five/insertToFinalRound')
+        Swal.fire({
+          title: 'Success!',
+          text: insertToFinalRound.data.message,
+          icon: 'success',
+        })
+      }
     } else {
       Swal.fire({
         title: 'Unavailable this time',

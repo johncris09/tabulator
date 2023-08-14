@@ -43,6 +43,60 @@ router.get("/getJudgeScore", async (req, res, next) => {
   }
 });
 
+router.get("/final_result", async (req, res, next) => {
+  try {
+    const q = `
+      SELECT
+          candidate.id,
+          candidate.number,
+          candidate.name,
+          talent_presentation.rank
+      FROM
+          candidate
+      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
+      WHERE
+          judge = 0 AND score != 0
+      group by candidate.id
+      ORDER BY
+          rank ASC;`;
+
+    db.query(q, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      const maxRank = 1;
+      let rank = 0;
+      const ranks = {};
+      const processedResult = [];
+
+      for (const row of result) {
+        const { id, rank: candidateRank, number, name } = row;
+
+        ranks[candidateRank] ??= ++rank;
+
+        if (ranks[candidateRank] > maxRank) {
+          break;
+        }
+
+        processedResult.push({
+          candidateId: id,
+          number: number,
+          name: name,
+          rank: rank,
+        });
+      }
+
+      res.json(processedResult);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   try {
     // return true

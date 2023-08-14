@@ -123,7 +123,6 @@ const ProductionAttire = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'production_attire/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      // alert('print')
       navigate('/production_attire/summary')
     } else {
       Swal.fire({
@@ -138,7 +137,7 @@ const ProductionAttire = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'production_attire/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/production_attire/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',

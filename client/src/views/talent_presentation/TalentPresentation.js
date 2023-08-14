@@ -210,7 +210,7 @@ const TalentPresentation = ({ userInfo }) => {
     const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
 
     if (isAllJudgeDoneScoring.data) {
-      alert('print')
+      navigate('/talent_presentation/final_result')
     } else {
       Swal.fire({
         title: 'Unavailable this time',

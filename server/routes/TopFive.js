@@ -29,6 +29,60 @@ router.get("/getJudgeScore", async (req, res, next) => {
   }
 });
 
+router.get("/final_result", async (req, res, next) => {
+  try {
+    const q = `
+      SELECT
+          candidate.id,
+          candidate.number,
+          candidate.name,
+          talent_presentation.rank
+      FROM
+          candidate
+      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
+      WHERE
+          judge = 0 AND score != 0
+      group by candidate.id
+      ORDER BY
+          rank ASC;`;
+
+    db.query(q, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      const maxRank = 5;
+      let rank = 0;
+      const ranks = {};
+      const processedResult = [];
+
+      for (const row of result) {
+        const { id, rank: candidateRank, number, name } = row;
+
+        ranks[candidateRank] ??= ++rank;
+
+        if (ranks[candidateRank] > maxRank) {
+          break;
+        }
+
+        processedResult.push({
+          candidateId: id,
+          number: number,
+          name: name,
+          rank: rank,
+        });
+      }
+
+      res.json(processedResult);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   try {
     // return true
@@ -71,6 +125,34 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
       const total_count = result[0]["total_count"];
 
       if (total_count === 5) {
+        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
+      }
+
+      res.send(hasUnlockedStatus);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/isInsertedToFinalRound", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+      SELECT count (*) as total_count from ${table}`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      // // Initialize the flag
+      let hasUnlockedStatus = false;
+      const total_count = result[0]["total_count"];
+
+      if (total_count) {
         hasUnlockedStatus = true; // Set the flag if an unlocked status is found
       }
 
@@ -554,7 +636,7 @@ router.post("/lockScore", async (req, res, next) => {
   }
 });
 
-router.post("/insertToFinalRank", async (req, res, next) => {
+router.post("/insertToFinalRound", async (req, res, next) => {
   try {
     const q = `
       SELECT
@@ -596,7 +678,7 @@ router.post("/insertToFinalRank", async (req, res, next) => {
           candidateId: id,
         });
       }
- 
+
       const judgesquery = `SELECT *   FROM user  WHERE   role_type = "judge" ;`;
 
       db.query(judgesquery, (err, result) => {
@@ -631,16 +713,18 @@ router.post("/insertToFinalRank", async (req, res, next) => {
             // Await the Promise to get the result
             const result = await numRows;
             if (result === 0) {
-              const insertQuery = `INSERT INTO final_round (judge, candidate) VALUES (?, ?)`; 
+              const insertQuery = `INSERT INTO final_round (judge, candidate) VALUES (?, ?)`;
               const insertParams = [judgeId, _row.candidateId];
               await db.query(insertQuery, insertParams);
             }
           });
         });
-      }); 
+      });
     });
 
-    res.status(200).json({ message: "Candidates successfully inserted to Final Round!" });
+    res
+      .status(200)
+      .json({ message: "Candidates successfully inserted to Final Round!" });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal server error" });
