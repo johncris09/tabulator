@@ -8,6 +8,7 @@ import eveningGownRoute from "./routes/EveningGown.js"
 import topFiveRoute from "./routes/TopFive.js"
 import finalRoundRoute from "./routes/FinalRound.js"
 import candidateRoute from "./routes/Candidate.js"
+import settingsRoute from "./routes/Settings.js"
 import loginRoute from "./routes/Login.js"
 import userRoute from "./routes/Users.js"
 
@@ -30,6 +31,8 @@ app.use("/swim_wear",  swimWearRoute);
 app.use("/evening_gown",  eveningGownRoute);
 app.use("/top_five",  topFiveRoute);
 app.use("/final_round",  finalRoundRoute);
+app.use("/settings",  settingsRoute);
+
 
 app.get('/', (req, res) => {
     res.send("Weclome to the Server")
