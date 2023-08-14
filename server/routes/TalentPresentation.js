@@ -15,9 +15,9 @@ router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status \
-      FROM candidate t1 \
-      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? \
+    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status 
+      FROM candidate t1 
+      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? 
       GROUP BY t1.id;`;
     db.query(q, [judgeId], (err, result) => {
       if (err) throw err;

@@ -15,9 +15,9 @@ router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status \
-      FROM candidate t1 \
-      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ? \
+    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status  
+      FROM candidate t1  
+      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ?  
       GROUP BY t1.id;`;
     db.query(q, [judgeId], (err, result) => {
       if (err) throw err;
@@ -538,6 +538,21 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// tabulaltor will close once the score is submitted
+router.post("/lockScore", async (req, res, next) => {
+  try {
+    const { judgeId, status } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET status = ? WHERE judge = ?`;
+    const updateParams = [status, judgeId];
+    db.query(updateQuery, updateParams);
+
+    res.status(200).json({ message: "Score Submitted!" });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.post("/insertToFinalRank", async (req, res, next) => {
   try {
@@ -552,6 +567,7 @@ router.post("/insertToFinalRank", async (req, res, next) => {
       JOIN top_five ON top_five.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
+      group by candidate.id
       ORDER BY
           rank ASC;`;
 
@@ -580,60 +596,57 @@ router.post("/insertToFinalRank", async (req, res, next) => {
           candidateId: id,
         });
       }
+ 
+      const judgesquery = `SELECT *   FROM user  WHERE   role_type = "judge" ;`;
 
-      processedResult.forEach(async (row) => { 
+      db.query(judgesquery, (err, result) => {
+        if (err) {
+          console.error("Error executing MySQL query:", err);
+          res.status(500).json({ error: "Internal Server Error" });
+          return;
+        }
 
-        // Query to check if the record exists for the given judgeId and candidateId
-        const countQuery = `SELECT COUNT(*) AS numRows FROM final_round WHERE candidate = ?`;
+        result.forEach(async (row) => {
+          let judgeId = row.id;
 
-        // Use a Promise to handle the database query asynchronously
-        const numRows = new Promise((resolve, reject) => {
-          db.query(countQuery, [ row.candidateId], function (err, results) {
-            if (err) {
-              reject(err);
-            } else {
-              const length = results[0].numRows;
-              resolve(length);
+          processedResult.forEach(async (_row) => {
+            const countQuery = `SELECT COUNT(*) AS numRows FROM final_round WHERE candidate = ? and judge = ? `;
+
+            // Use a Promise to handle the database query asynchronously
+            const numRows = new Promise((resolve, reject) => {
+              db.query(
+                countQuery,
+                [_row.candidateId, judgeId],
+                function (err, results) {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    const length = results[0].numRows;
+                    resolve(length);
+                  }
+                }
+              );
+            });
+
+            // Await the Promise to get the result
+            const result = await numRows;
+            if (result === 0) {
+              const insertQuery = `INSERT INTO final_round (judge, candidate) VALUES (?, ?)`; 
+              const insertParams = [judgeId, _row.candidateId];
+              await db.query(insertQuery, insertParams);
             }
           });
         });
-
-        // Await the Promise to get the result
-        const result = await numRows;
-        if (result < 1) {
-          const insertQuery = `INSERT INTO final_round (judge, candidate) VALUES (?, ?)`;
-          const insertParams = [0, row.candidateId];
-          await db.query(insertQuery, insertParams);
-        }
-      });
+      }); 
     });
 
-
     res.status(200).json({ message: "Candidates successfully inserted to Final Round!" });
-
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-
-
-// tabulaltor will close once the score is submitted
-router.post("/lockScore", async (req, res, next) => {
-  try {
-    const { judgeId, status } = req.body;
-
-    const updateQuery = `UPDATE ${table} SET status = ? WHERE judge = ?`;
-    const updateParams = [status, judgeId];
-    db.query(updateQuery, updateParams);
-
-    res.status(200).json({ message: "Score Submitted!" });
-  } catch (error) {
-    console.error("Error saving score:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 router.get("/rank", async (req, res, next) => {
   try {
   } catch (error) {
