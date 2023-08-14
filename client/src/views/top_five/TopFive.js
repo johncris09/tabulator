@@ -59,7 +59,6 @@ const TopFive = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score) => {
-    console.info(score)
     if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({

@@ -7,7 +7,6 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
-  CFormInput,
   CRow,
   CTable,
   CTableBody,
@@ -38,7 +37,6 @@ const ProductionAttire = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
-      // console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -50,7 +48,6 @@ const ProductionAttire = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
-      // console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }

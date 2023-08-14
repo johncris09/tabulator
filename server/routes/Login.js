@@ -35,9 +35,7 @@ router.post('/', async (req, res) => {
       }
 
       // Remove the key from the user object
-      delete user.password; 
-      // const {id}  = user.id
-      // console.info(user)
+      delete user.password;  
       
       // Generate and send a JSON Web Token (JWT)
       const token = jwt.sign({ ...user } , 'secretKey');

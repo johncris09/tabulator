@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   CAvatar,
   CDropdown,
@@ -13,9 +13,6 @@ import CIcon from '@coreui/icons-react'
 import avatar8 from './../../assets/images/user.png'
 
 const AppHeaderDropdown = ({ userInfo }) => {
-  useEffect(() => {
-    // console.info(userInfo)
-  }, [userInfo])
   const handleLogout = () => {
     localStorage.removeItem('token')
   }

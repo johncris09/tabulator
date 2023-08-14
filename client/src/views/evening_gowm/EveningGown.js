@@ -45,7 +45,6 @@ const EveningGown = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
-      console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -57,7 +56,6 @@ const EveningGown = ({ userInfo }) => {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
-      // console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -101,8 +99,7 @@ const EveningGown = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      const response = await axios.post(ip + table, scoreData)
-      console.info(response)
+      await axios.post(ip + table, scoreData)
     }
   }
 

@@ -28,7 +28,6 @@ const TopFivePrintPerJudge = () => {
     try {
       const response = await axios.get(ip + 'top_five/getAllJudgeScores')
       setJudgeScores(response.data) // Assuming the response is an array of judge score objects
-      console.info(response.data)
     } catch (error) {
       console.error('Error fetching judge scores:', error)
       setJudgeScores([]) // Set an empty array if there's an error
