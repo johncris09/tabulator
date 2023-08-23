@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
 import { CContainer, CHeader, CHeaderBrand, CHeaderNav, CNavLink } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppHeaderDropdown } from './header/index'
-import { logo } from 'src/assets/brand/logo'
 
 const AppHeader = ({ userInfo }) => {
   useEffect(() => {}, [userInfo])
@@ -12,7 +10,8 @@ const AppHeader = ({ userInfo }) => {
       <CContainer fluid>
         <CHeaderBrand className="d-md-flex me-auto">
           <CNavLink href="#">
-            <CIcon icon={logo} height={48} alt="Logo" href="#" />
+            {/* <CIcon icon={logo} height={48} alt="Logo" href="#" /> */}
+            <h4>Tabulator</h4>
           </CNavLink>
         </CHeaderBrand>
         <CHeaderNav className="ms-3">

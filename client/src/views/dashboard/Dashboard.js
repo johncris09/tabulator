@@ -1,32 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardImage,
-  CCardText,
-  CCloseButton,
-  CCol,
-  CRow,
-} from '@coreui/react'
+import { CButton, CCard, CCardBody, CCardImage, CCardText, CCol, CRow } from '@coreui/react'
 import ip from './../../constant/ip'
 import axios from 'axios'
 
 import talentPresentationImage from 'src/assets/images/event/talent presentation.jpg'
 import productionAttireImage from 'src/assets/images/event/production_attire.jpg'
-import productionNumberImage from 'src/assets/images/event/production_number.jpg'
 import swimWearImage from 'src/assets/images/event/swim_wear.jpg'
 import eveningGownImage from 'src/assets/images/event/evening_gown.jpg'
 import topFiveImage from 'src/assets/images/event/top_5.jpg'
 import finalRoundImage from 'src/assets/images/event/final_round.jpg'
-import {
-  faCheckCircle,
-  faClose,
-  faEye,
-  faEyeSlash,
-  faSlash,
-} from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const Dashboard = ({ userInfo }) => {
