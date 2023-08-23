@@ -24,6 +24,7 @@ import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-sv
 import './../../assets/css/custom.css'
 
 const TopFive = ({ userInfo }) => {
+  const api = 'final_round'
   const inputRefs = useRef([])
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
@@ -40,7 +41,7 @@ const TopFive = ({ userInfo }) => {
   }
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'final_round/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -51,7 +52,7 @@ const TopFive = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'final_round/getConsolidatedScoreAndRank')
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -59,8 +60,18 @@ const TopFive = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score) => {
-    if (score < 1 || score > 10) {
-      // Show error message
+    if (score === '') {
+      setModifiedCandidateScores((prevScores) => ({
+        ...prevScores,
+        [candidateId]: '',
+      }))
+
+      // update the score and rank of the candidate to null
+      await axios.post(`${ip + api}/update`, {
+        candidateId: candidateId,
+        judgeId: judgeId,
+      })
+    } else if (score < 1 || score > 10) {
       Swal.fire({
         title: 'Error!',
         html: 'Please only provide ratings between 1 and 10.',
@@ -70,6 +81,12 @@ const TopFive = ({ userInfo }) => {
         ...prevScores,
         [candidateId]: prevScores,
       }))
+
+      // update the score and rank of the candidate to null
+      await axios.post(`${ip + api}/update`, {
+        candidateId: candidateId,
+        judgeId: judgeId,
+      })
     } else {
       setModifiedCandidateScores((prevScores) => ({
         ...prevScores,
@@ -81,7 +98,7 @@ const TopFive = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + 'final_round', scoreData)
+      await axios.post(`${ip + api}`, scoreData)
     }
   }
   const handleSubmit = async () => {
@@ -109,7 +126,7 @@ const TopFive = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'final_round/lockScore', lockData)
+          const response = await axios.post(`${ip + api}/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -151,7 +168,7 @@ const TopFive = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'final_round/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -177,10 +194,10 @@ const TopFive = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'final_round/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/final_round/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -191,10 +208,10 @@ const TopFive = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'final_round/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/final_round/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -205,10 +222,10 @@ const TopFive = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'final_round/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/final_round/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',

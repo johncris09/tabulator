@@ -50,10 +50,10 @@ router.get("/final_result", async (req, res, next) => {
           candidate.id,
           candidate.number,
           candidate.name,
-          talent_presentation.rank
+          evening_gown.rank
       FROM
           candidate
-      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
+      JOIN evening_gown ON evening_gown.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
       group by candidate.id
@@ -597,6 +597,28 @@ router.post("/lockScore", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+router.delete("/", async (req, res, next) => {
+  try {
+    const { candidateId, judgeId } = req.query;
+    // Perform the delete operation
+    const q = `DELETE FROM ${table} WHERE candidate = ? and judge = ?`;
+    db.query(q, [candidateId, judgeId], (err, result) => {
+      if (err) {
+        console.error("Error deleting data:", err);
+        res.status(500).json({ error: "Error deleting data" });
+        return;
+      }
+
+      console.log("Data deleted successfully:", result);
+      res.status(200).json({ message: "Data deleted successfully" });
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Error deleting data" });
+  }
+});
+
 router.get("/rank", async (req, res, next) => {
   try {
   } catch (error) {

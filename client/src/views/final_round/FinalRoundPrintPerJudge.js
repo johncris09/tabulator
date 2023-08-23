@@ -17,6 +17,7 @@ import axios from 'axios'
 import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 const FinalRoundPrintPerJudge = () => {
+  const api = 'final_round'
   const [judgeScores, setJudgeScores] = useState([])
 
   useEffect(() => {
@@ -25,7 +26,7 @@ const FinalRoundPrintPerJudge = () => {
 
   const fetchAllJudgeScores = async () => {
     try {
-      const response = await axios.get(ip + 'final_round/getAllJudgeScores')
+      const response = await axios.get(`${ip + api}/getAllJudgeScores`)
       setJudgeScores(response.data) // Assuming the response is an array of judge score objects
     } catch (error) {
       console.error('Error fetching judge scores:', error)

@@ -18,6 +18,7 @@ import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 
 const SwimWearPrintFinalResult = () => {
+  const api = 'swim_wear'
   const [consolidatedRank, setConsolidatedRank] = useState([])
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const SwimWearPrintFinalResult = () => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'swim_wear/final_result')
+      const response = await axios.get(`${ip + api}/final_result`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)

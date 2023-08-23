@@ -627,6 +627,46 @@ router.post("/lockScore", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+// update scoare of the candidate of that judge
+router.post("/update", async (req, res, next) => {
+  try {
+    const { judgeId, candidateId } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET score=?, rank=? WHERE judge = ? and candidate=?`;
+    const updateParams = [null, null, judgeId, candidateId];
+    db.query(updateQuery, updateParams);
+
+    res.status(200).json({ message: "Score Updated!"  });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/", async (req, res, next) => {
+  try {
+    const { candidateId, judgeId } = req.query;
+    // Perform the delete operation
+    const q = `DELETE FROM ${table} WHERE candidate = ? and judge = ?`;
+    db.query(q, [candidateId, judgeId], (err, result) => {
+      if (err) {
+        console.error("Error deleting data:", err);
+        res.status(500).json({ error: "Error deleting data" });
+        return;
+      }
+
+      console.log("Data deleted successfully:", result);
+      res.status(200).json({ message: "Data deleted successfully" });
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Error deleting data" });
+  }
+});
+
+
 router.get("/rank", async (req, res, next) => {
   try {
   } catch (error) {

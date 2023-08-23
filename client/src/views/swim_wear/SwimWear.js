@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-svg-icons'
 
 const SwimWear = ({ userInfo }) => {
+  const api = 'swim_wear'
   const swimWearInputRefs = useRef([])
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
@@ -41,7 +42,7 @@ const SwimWear = ({ userInfo }) => {
 
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'swim_wear/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -52,7 +53,7 @@ const SwimWear = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'swim_wear/getConsolidatedScoreAndRank', {
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`, {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
@@ -62,7 +63,24 @@ const SwimWear = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score, table) => {
-    if (score < 1 || score > 10) {
+    if (score === '') {
+      if (table === 'swim_wear') {
+        setModifiedSwimWearCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      } else if (table === 'top_five') {
+        setModifiedTopFiveCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      }
+
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
+    } else if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
         title: 'Error!',
@@ -81,6 +99,10 @@ const SwimWear = ({ userInfo }) => {
           [candidateId]: prevScores,
         }))
       }
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
     } else {
       if (table === 'swim_wear') {
         setModifiedSwimWearCandidateScores((prevScores) => ({
@@ -99,7 +121,7 @@ const SwimWear = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + table, scoreData)
+      await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -127,7 +149,7 @@ const SwimWear = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'swim_wear/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -176,7 +198,7 @@ const SwimWear = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'swim_wear/lockScore', lockData)
+          const response = await axios.post(`${ip + api}/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -196,10 +218,10 @@ const SwimWear = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'swim_wear/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/swim_wear/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -210,10 +232,10 @@ const SwimWear = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'swim_wear/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/swim_wear/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -224,10 +246,10 @@ const SwimWear = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'swim_wear/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/swim_wear/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',

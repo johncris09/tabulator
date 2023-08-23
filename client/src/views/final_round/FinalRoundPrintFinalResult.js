@@ -18,6 +18,7 @@ import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 
 const FinalRoundPrintFinalResult = () => {
+  const api = 'final_round'
   const [consolidatedRank, setConsolidatedRank] = useState([])
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const FinalRoundPrintFinalResult = () => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'final_round/final_result')
+      const response = await axios.get(`${ip + api}/getAllJudgeScores`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)

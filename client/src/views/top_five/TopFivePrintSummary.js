@@ -18,6 +18,7 @@ import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 
 const TopFivePrintSummary = () => {
+  const api = 'top_five'
   const [consolidatedRank, setConsolidatedRank] = useState([])
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const TopFivePrintSummary = () => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'top_five/getConsolidatedScoreAndRank')
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)

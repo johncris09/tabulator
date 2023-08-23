@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-svg-icons'
 
 const EveningGown = ({ userInfo }) => {
+  const api = 'evening_gown'
   const eveningGownInputRefs = useRef([])
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
@@ -41,7 +42,7 @@ const EveningGown = ({ userInfo }) => {
 
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'evening_gown/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -52,7 +53,7 @@ const EveningGown = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'evening_gown/getConsolidatedScoreAndRank', {
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`, {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
@@ -62,7 +63,24 @@ const EveningGown = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score, table) => {
-    if (score < 1 || score > 10) {
+    if (score === '') {
+      if (table === 'evening_gown') {
+        setModifiedEveningGownCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      } else if (table === 'top_five') {
+        setModifiedTopFiveCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      }
+
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
+    } else if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
         title: 'Error!',
@@ -81,6 +99,10 @@ const EveningGown = ({ userInfo }) => {
           [candidateId]: prevScores,
         }))
       }
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
     } else {
       if (table === 'evening_gown') {
         setModifiedEveningGownCandidateScores((prevScores) => ({
@@ -99,7 +121,7 @@ const EveningGown = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + table, scoreData)
+      await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -127,7 +149,7 @@ const EveningGown = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'evening_gown/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -176,7 +198,7 @@ const EveningGown = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'evening_gown/lockScore', lockData)
+          const response = await axios.post(`${ip + api}/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -196,10 +218,10 @@ const EveningGown = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/evening_gown/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -210,10 +232,10 @@ const EveningGown = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/evening_gown/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -224,10 +246,10 @@ const EveningGown = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'evening_gown/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/evening_gown/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',

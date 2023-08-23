@@ -24,6 +24,7 @@ import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-sv
 import './../../assets/css/custom.css'
 
 const TalentPresentation = ({ userInfo }) => {
+  const api = 'talent_presentation'
   const inputRefs = useRef([])
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
@@ -40,7 +41,7 @@ const TalentPresentation = ({ userInfo }) => {
   }
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -51,7 +52,7 @@ const TalentPresentation = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'talent_presentation/getConsolidatedScoreAndRank')
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -59,8 +60,17 @@ const TalentPresentation = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score) => {
-    if (score < 1 || score > 10) {
-      // Show error message
+    if (score === '') {
+      setModifiedCandidateScores((prevScores) => ({
+        ...prevScores,
+        [candidateId]: '',
+      }))
+
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + api}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
+    } else if (score < 1 || score > 10) {
       Swal.fire({
         title: 'Error!',
         html: 'Please only provide ratings between 1 and 10.',
@@ -70,6 +80,11 @@ const TalentPresentation = ({ userInfo }) => {
         ...prevScores,
         [candidateId]: prevScores,
       }))
+
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + api}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
     } else {
       setModifiedCandidateScores((prevScores) => ({
         ...prevScores,
@@ -81,7 +96,7 @@ const TalentPresentation = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + 'talent_presentation', scoreData)
+      await axios.post(`${ip + api}`, scoreData)
     }
   }
   const handleSubmit = async () => {
@@ -109,7 +124,7 @@ const TalentPresentation = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'talent_presentation/lockScore', lockData)
+          const response = await axios.post(`${ip + api}/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -151,7 +166,7 @@ const TalentPresentation = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'talent_presentation/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -177,10 +192,10 @@ const TalentPresentation = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/talent_presentation/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -191,11 +206,10 @@ const TalentPresentation = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      // alert('print')
-      navigate('/talent_presentation/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -206,10 +220,10 @@ const TalentPresentation = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'talent_presentation/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/talent_presentation/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',

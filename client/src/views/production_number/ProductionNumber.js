@@ -24,6 +24,7 @@ import { faCheck, faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-sv
 import './../../assets/css/custom.css'
 
 const ProductionNumber = ({ userInfo }) => {
+  const api = 'production_number'
   const productionNumberInputRefs = useRef([])
   const productionAttireInputRefs = useRef([])
   const navigate = useNavigate()
@@ -48,7 +49,7 @@ const ProductionNumber = ({ userInfo }) => {
   }
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'production_number/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -59,7 +60,7 @@ const ProductionNumber = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'production_number/getConsolidatedScoreAndRank', {
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`, {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
@@ -69,7 +70,29 @@ const ProductionNumber = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score, table) => {
-    if (score < 1 || score > 10) {
+    if (score === '') {
+      if (table === 'production_number') {
+        setModifiedProductionNumberCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      } else if (table === 'production_attire') {
+        setModifiedProductionAttireCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      } else if (table === 'top_five') {
+        setModifiedTopFiveCandidateScores((prevScores) => ({
+          ...prevScores,
+          [candidateId]: '',
+        }))
+      }
+
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
+    } else if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
         title: 'Error!',
@@ -93,6 +116,10 @@ const ProductionNumber = ({ userInfo }) => {
           [candidateId]: prevScores,
         }))
       }
+      // delete the score and rank of the candidate
+      await axios.delete(`${ip + table}`, {
+        params: { candidateId: candidateId, judgeId: judgeId },
+      })
     } else {
       if (table === 'production_number') {
         setModifiedProductionNumberCandidateScores((prevScores) => ({
@@ -116,7 +143,7 @@ const ProductionNumber = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(ip + table, scoreData)
+      await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -145,7 +172,7 @@ const ProductionNumber = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'production_number/lockScore', lockData)
+          const response = await axios.post(`${ip + api}/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -188,7 +215,7 @@ const ProductionNumber = ({ userInfo }) => {
             status: 'locked',
           }
 
-          const response = await axios.post(ip + 'production_attire/lockScore', lockData)
+          const response = await axios.post(`${ip}production_attire/lockScore`, lockData)
 
           Swal.fire({
             title: 'Success!',
@@ -229,7 +256,7 @@ const ProductionNumber = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'production_number/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -255,10 +282,10 @@ const ProductionNumber = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_number/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/production_number/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -269,11 +296,10 @@ const ProductionNumber = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_number/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      // alert('print')
-      navigate('/production_number/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -284,10 +310,10 @@ const ProductionNumber = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_number/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/production_number/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',

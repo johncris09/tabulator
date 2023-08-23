@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLock, faLockOpen, faPrint } from '@fortawesome/free-solid-svg-icons'
 
 const ProductionAttire = ({ userInfo }) => {
+  const api = 'production_attire'
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
   const [consolidatedRank, setConsolidatedRank] = useState([])
@@ -33,7 +34,7 @@ const ProductionAttire = ({ userInfo }) => {
 
   const fetchCandidate = async () => {
     try {
-      const response = await axios.get(ip + 'production_attire/getJudgeScore', {
+      const response = await axios.get(`${ip + api}/getJudgeScore`, {
         params: { judgeId: userInfo.id },
       })
       setCandidate(response.data)
@@ -44,7 +45,7 @@ const ProductionAttire = ({ userInfo }) => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(ip + 'production_attire/getConsolidatedScoreAndRank', {
+      const response = await axios.get(`${ip + api}/getConsolidatedScoreAndRank`, {
         params: { judgeId: userInfo.id },
       })
       setConsolidatedRank(response.data)
@@ -77,7 +78,7 @@ const ProductionAttire = ({ userInfo }) => {
               status: 'unlocked',
             }
 
-            await axios.post(ip + 'production_attire/lockScore', lockData)
+            await axios.post(`${ip + api}/lockScore`, lockData)
 
             Swal.fire({
               title: 'Success!',
@@ -103,10 +104,10 @@ const ProductionAttire = ({ userInfo }) => {
 
   const handlePrintJudgeScore = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_attire/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/production_attire/per_judge')
+      navigate(`per_judge`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -117,10 +118,10 @@ const ProductionAttire = ({ userInfo }) => {
   }
   const handlePrintSummary = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_attire/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/production_attire/summary')
+      navigate(`summary`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
@@ -131,10 +132,10 @@ const ProductionAttire = ({ userInfo }) => {
   }
   const handlePrintResult = async () => {
     // check if all judge is done scoring
-    const isAllJudgeDoneScoring = await axios.get(ip + 'production_attire/isAllJudgeDoneScoring')
+    const isAllJudgeDoneScoring = await axios.get(`${ip + api}/isAllJudgeDoneScoring`)
 
     if (isAllJudgeDoneScoring.data) {
-      navigate('/production_attire/final_result')
+      navigate(`final_result`)
     } else {
       Swal.fire({
         title: 'Unavailable this time',
