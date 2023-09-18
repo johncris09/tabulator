@@ -16,6 +16,7 @@ import ip from './../../constant/ip'
 import axios from 'axios'
 import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
+import { Header, Footer } from 'src/helper/report/ResultPerJudgeScore'
 
 const TopFivePrintPerJudge = () => {
   const api = 'top_five'
@@ -35,60 +36,11 @@ const TopFivePrintPerJudge = () => {
     }
   }
 
-  const formattedDate = new Date().toLocaleString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true,
-  })
-
   return (
     <>
       {judgeScores.map((judgeScore, index) => (
         <div key={index} className="printPerJudgePage">
-          <CRow className="justify-content-around evenly text-center mt-5 mb-4">
-            <CCol>
-              <CImage
-                rounded
-                src={logo}
-                style={{
-                  width: '50%',
-                  height: 'auto',
-                  maxWidth: '90px',
-                  maxHeight: '90px',
-                }}
-              />
-            </CCol>
-            <CCol>
-              <CImage
-                rounded
-                src={logo}
-                style={{
-                  width: '50%',
-                  height: 'auto',
-                  maxWidth: '90px',
-                  maxHeight: '90px',
-                }}
-              />{' '}
-            </CCol>
-            <CCol>
-              <CImage
-                rounded
-                className="imageHeaderPrint"
-                src={logo}
-                style={{
-                  width: '50%',
-                  height: 'auto',
-                  maxWidth: '90px',
-                  maxHeight: '90px',
-                }}
-              />
-            </CCol>
-          </CRow>
+          <Header />
 
           <div className="text-center my-5">
             <h5>Top Five Judge&apos;s Score</h5>
@@ -125,14 +77,7 @@ const TopFivePrintPerJudge = () => {
           <br />
           <br />
           <br />
-          <CFooter className="bg-transparent mt-5" style={{ fontSize: 12 }}>
-            <div>
-              <span>Developed by: OCM MIS Division &copy; 2023</span>
-            </div>
-            <div>
-              <span>Printed on {formattedDate}</span>
-            </div>
-          </CFooter>
+          <Footer />
         </div>
       ))}
     </>

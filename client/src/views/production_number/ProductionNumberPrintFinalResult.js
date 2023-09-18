@@ -16,6 +16,7 @@ import ip from './../../constant/ip'
 import axios from 'axios'
 import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
+import { FinalHeader, FinalFooter, Chairman } from 'src/helper/report/FinalResultTemplate'
 
 const ProductionNumberPrintFinalResult = () => {
   const api = 'production_number'
@@ -33,58 +34,10 @@ const ProductionNumberPrintFinalResult = () => {
       console.error('Error fetching data:', error)
     }
   }
-  const formattedDate = new Date().toLocaleString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true,
-  })
 
   return (
     <div className="final_result_container">
-      <CRow className="justify-content-around evenly text-center mt-4 mb-4">
-        <CCol>
-          <CImage
-            rounded
-            src={logo}
-            style={{
-              width: '40%',
-              height: 'auto',
-              maxWidth: '90px',
-              maxHeight: '90px',
-            }}
-          />
-        </CCol>
-        <CCol>
-          <CImage
-            rounded
-            src={logo}
-            style={{
-              width: '40%',
-              height: 'auto',
-              maxWidth: '90px',
-              maxHeight: '90px',
-            }}
-          />{' '}
-        </CCol>
-        <CCol>
-          <CImage
-            rounded
-            className="imageHeaderPrint"
-            src={logo}
-            style={{
-              width: '40%',
-              height: 'auto',
-              maxWidth: '90px',
-              maxHeight: '90px',
-            }}
-          />
-        </CCol>
-      </CRow>
+      <FinalHeader />
 
       <div className="text-center mb-4">
         <h5>Production Number Final Result</h5>
@@ -115,15 +68,8 @@ const ProductionNumberPrintFinalResult = () => {
           Chairman, Board of Judges
         </CCol>
       </CRow>
-
-      <CFooter className="bg-transparent" style={{ fontSize: 12 }}>
-        <div>
-          <span>Developed by: OCM MIS Division &copy; 2023</span>
-        </div>
-        <div>
-          <span>Printed on {formattedDate}</span>
-        </div>
-      </CFooter>
+      <Chairman />
+      <FinalFooter />
     </div>
   )
 }
