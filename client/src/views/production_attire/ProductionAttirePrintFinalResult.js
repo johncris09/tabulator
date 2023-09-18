@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   CCol,
-  CFooter,
-  CImage,
   CRow,
   CTable,
   CTableBody,
@@ -11,10 +9,8 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-// import logo from './../../../assets/images/logo.png'
 import ip from './../../constant/ip'
 import axios from 'axios'
-import logo from './../../assets/images/logo.png'
 import './../../assets/css/custom.css'
 import { FinalHeader, FinalFooter, Chairman } from 'src/helper/report/FinalResultTemplate'
 

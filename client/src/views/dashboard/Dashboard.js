@@ -33,7 +33,6 @@ const Dashboard = ({ userInfo }) => {
     try {
       const response = await axios.get(ip + 'settings')
       setMenuItems(response.data)
-      // console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
