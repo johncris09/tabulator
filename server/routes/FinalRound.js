@@ -50,10 +50,10 @@ router.get("/final_result", async (req, res, next) => {
           candidate.id,
           candidate.number,
           candidate.name,
-          talent_presentation.rank
+          final_round.rank
       FROM
           candidate
-      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
+      JOIN final_round ON final_round.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
       group by candidate.id
