@@ -68,7 +68,6 @@ const ProductionNumber = ({ userInfo }) => {
       console.error('Error fetching data:', error)
     }
   }
-
   const handleScoreChange = async (judgeId, candidateId, score, table) => {
     if (score === '') {
       if (table === 'production_number') {
@@ -92,6 +91,7 @@ const ProductionNumber = ({ userInfo }) => {
       await axios.delete(`${ip + table}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
+      window.location.reload()
     } else if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
@@ -120,6 +120,7 @@ const ProductionNumber = ({ userInfo }) => {
       await axios.delete(`${ip + table}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
+      window.location.reload()
     } else {
       if (table === 'production_number') {
         setModifiedProductionNumberCandidateScores((prevScores) => ({
@@ -144,6 +145,7 @@ const ProductionNumber = ({ userInfo }) => {
         score: score,
       }
       await axios.post(`${ip + table}`, scoreData)
+      window.location.reload()
     }
   }
 

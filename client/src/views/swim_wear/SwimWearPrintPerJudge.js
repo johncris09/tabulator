@@ -40,6 +40,7 @@ const SwimWearPrintPerJudge = () => {
           <div className="text-center my-5">
             <h5>Best in Swim Wear Judge&apos;s Score</h5>
           </div>
+          <br />
           <CTable bordered className="table-sm tablePerJudge mb-5" borderColor="dark">
             <CTableHead style={{ background: 'orange' }}>
               <CTableRow className="text-center">

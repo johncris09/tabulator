@@ -56,15 +56,11 @@ const ProductionNumberPrintFinalResult = () => {
           ))}
         </CTableBody>
       </CTable>
-
-      <CRow className="justify-content-around evenly text-center mt-5 mb-5">
-        <CCol>
-          ________________________________________
-          <br />
-          Chairman, Board of Judges
-        </CCol>
-      </CRow>
+      <br />
       <Chairman />
+      <br />
+      <br />
+      <br />
       <FinalFooter />
     </div>
   )

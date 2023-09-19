@@ -23,8 +23,9 @@ const Login = () => {
   const navigate = useNavigate()
   const [validated, setValidated] = useState(false)
   const [formData, setFormData] = useState({
-    username: 'admin',
-    password: 'tabulator',
+    username: '',
+    // password: 'tabulator',
+    password: '',
   })
 
   useEffect(() => {

@@ -22,7 +22,7 @@ const FinalRoundPrintFinalResult = () => {
 
   const fetchConsolidatedScoreAndRank = async () => {
     try {
-      const response = await axios.get(`${ip + api}/getAllJudgeScores`)
+      const response = await axios.get(`${ip + api}/final_result`)
       setConsolidatedRank(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)

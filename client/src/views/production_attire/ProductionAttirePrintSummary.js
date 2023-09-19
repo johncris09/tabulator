@@ -34,9 +34,9 @@ const ProductionAttirePrintSummary = () => {
       <Header />
 
       <div className="text-center mb-2">
-        <h5>Production Attire Summary</h5>
+        <h5>Production Attire Summary Result</h5>
       </div>
-      <CTable bordered className="table-sm tableSummary " borderColor="dark">
+      <CTable bordered className="table-sm tableSummary mb-5" borderColor="dark">
         <CTableHead style={{ background: 'orange' }}>
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
@@ -66,7 +66,6 @@ const ProductionAttirePrintSummary = () => {
           ))}
         </CTableBody>
       </CTable>
-
       <Judges />
       <Footer />
     </>

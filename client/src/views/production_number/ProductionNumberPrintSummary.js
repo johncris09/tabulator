@@ -34,9 +34,9 @@ const ProductionNumberPrintSummary = () => {
       <Header />
 
       <div className="text-center mb-2">
-        <h5>Production Number Summary</h5>
+        <h5>Production Number Summary Result</h5>
       </div>
-      <CTable bordered className="table-sm tableSummary " borderColor="dark">
+      <CTable bordered className="table-sm tableSummary mb-5" borderColor="dark">
         <CTableHead style={{ background: 'orange' }}>
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>

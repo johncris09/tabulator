@@ -35,7 +35,7 @@ const ProductionAttirePrintFinalResult = () => {
       <FinalHeader />
 
       <div className="text-center mb-4">
-        <h5>Proudction Attire Final Result</h5>
+        <h5>Production Attire Final Result</h5>
       </div>
       <CTable bordered className="table-sm tableFinalResult " borderColor="dark">
         <CTableHead style={{ background: 'orange' }}>
@@ -55,15 +55,11 @@ const ProductionAttirePrintFinalResult = () => {
           ))}
         </CTableBody>
       </CTable>
-
-      <CRow className="justify-content-around evenly text-center mt-5 mb-5">
-        <CCol>
-          ________________________________________
-          <br />
-          Chairman, Board of Judges
-        </CCol>
-      </CRow>
+      <br />
       <Chairman />
+      <br />
+      <br />
+      <br />
       <FinalFooter />
     </div>
   )
