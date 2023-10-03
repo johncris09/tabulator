@@ -17,9 +17,10 @@ const formattedDate = new Date().toLocaleString('en-US', {
 
 function FinalHeader() {
   return (
-    <CRow className="justify-content-around evenly text-center mt-4 mb-4">
+    <CRow className="justify-content-around evenly text-center mb-3">
       <CCol>
         <CImage
+          className="imageHeaderPrint"
           rounded
           src={bblogo}
           style={{
@@ -44,8 +45,8 @@ function FinalHeader() {
       </CCol>
       <CCol>
         <CImage
-          rounded
           className="imageHeaderPrint"
+          rounded
           src={inugoglogo}
           style={{
             width: '40%',
@@ -74,7 +75,7 @@ function FinalFooter() {
 
 function Chairman() {
   return (
-    <CRow className="justify-content-around evenly text-center mt-5 mb-5">
+    <CRow className="justify-content-around evenly text-center mt-5 mb-2">
       <CCol>
         ________________________________________
         <br />
