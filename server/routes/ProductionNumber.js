@@ -604,7 +604,8 @@ router.post("/", async (req, res, next) => {
       });
     });
 
-    // res.status(200).json({ message: "Score saved successfully!" });
+    res.status(200).json({ message: "Score saved successfully!" });
+    
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
