@@ -121,7 +121,7 @@ const SwimWear = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(`${ip + table}`, scoreData)
+      const responsse = await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -187,7 +187,7 @@ const SwimWear = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -508,10 +508,17 @@ const SwimWear = ({ userInfo }) => {
                           (candidateInfo) => candidateInfo.sw_status === 'locked',
                         )}
                         size="sm"
-                        color="primary"
+                        color={
+                          candidate.some((candidateInfo) => candidateInfo.sw_status === 'locked')
+                            ? 'success'
+                            : 'primary'
+                        }
                         onClick={handleSwimWearScoreSubmit}
                       >
-                        <FontAwesomeIcon icon={faCheck} /> Submit Scores
+                        <FontAwesomeIcon icon={faCheck} />
+                        {candidate.some((candidateInfo) => candidateInfo.sw_status === 'locked')
+                          ? ' Score Submitted'
+                          : ' Submit Score'}
                       </CButton>
                     </CTableHeaderCell>
                   </CTableRow>

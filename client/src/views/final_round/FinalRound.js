@@ -115,7 +115,7 @@ const TopFive = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -247,11 +247,18 @@ const TopFive = ({ userInfo }) => {
               {userInfo.role_type !== 'admin' ? (
                 <CButton
                   disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                  color="primary"
+                  color={
+                    candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                      ? 'success'
+                      : 'primary'
+                  }
                   className="float-end mx-1"
                   onClick={handleSubmit}
                 >
-                  <FontAwesomeIcon icon={faCheck} /> Submit Score
+                  <FontAwesomeIcon icon={faCheck} />
+                  {candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                    ? ' Score Submitted'
+                    : ' Submit Score'}
                 </CButton>
               ) : (
                 <>

@@ -113,7 +113,7 @@ const TopFive = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -276,11 +276,18 @@ const TopFive = ({ userInfo }) => {
               {userInfo.role_type !== 'admin' ? (
                 <CButton
                   disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                  color="primary"
                   className="float-end mx-1"
+                  color={
+                    candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                      ? 'success'
+                      : 'primary'
+                  }
                   onClick={handleSubmit}
                 >
-                  <FontAwesomeIcon icon={faCheck} /> Submit Score
+                  <FontAwesomeIcon icon={faCheck} />
+                  {candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                    ? ' Score Submitted'
+                    : ' Submit Score'}
                 </CButton>
               ) : (
                 <>
@@ -347,10 +354,10 @@ const TopFive = ({ userInfo }) => {
                     <CTableHeaderCell>Top Five</CTableHeaderCell>
                     <CTableDataCell>
                       Each candidate will be rated 1 to 10, 1 being the lowest and 10 being the
-                      highest based on
+                      highest based on{' '}
                       <strong>
-                        Reality of Talent, Deportment/Stage Presence, Performance/Mastery, Costume &
-                        Relevance of Props.{' '}
+                        Beauty and Face Charm, Poise, Grace and Carriage, Stage Projection, Wit and
+                        Intelligence
                       </strong>
                     </CTableDataCell>
                   </CTableRow>

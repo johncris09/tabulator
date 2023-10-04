@@ -91,7 +91,6 @@ const ProductionNumber = ({ userInfo }) => {
       await axios.delete(`${ip + table}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
-      window.location.reload()
     } else if (score < 1 || score > 10) {
       // Show error message
       Swal.fire({
@@ -120,7 +119,6 @@ const ProductionNumber = ({ userInfo }) => {
       await axios.delete(`${ip + table}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
-      window.location.reload()
     } else {
       if (table === 'production_number') {
         setModifiedProductionNumberCandidateScores((prevScores) => ({
@@ -144,8 +142,7 @@ const ProductionNumber = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(`${ip + table}`, scoreData)
-      window.location.reload()
+      const response = await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -163,7 +160,7 @@ const ProductionNumber = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -206,7 +203,7 @@ const ProductionNumber = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -589,10 +586,17 @@ const ProductionNumber = ({ userInfo }) => {
                           (candidateInfo) => candidateInfo.pn_status === 'locked',
                         )}
                         size="sm"
-                        color="primary"
+                        color={
+                          candidate.some((candidateInfo) => candidateInfo.pn_status === 'locked')
+                            ? 'success'
+                            : 'primary'
+                        }
                         onClick={handleProductionNumberScoreSubmit}
                       >
-                        <FontAwesomeIcon icon={faCheck} /> Submit Scores
+                        <FontAwesomeIcon icon={faCheck} />
+                        {candidate.some((candidateInfo) => candidateInfo.pn_status === 'locked')
+                          ? ' Score Submitted'
+                          : ' Submit Score'}
                       </CButton>
                     </CTableHeaderCell>
                     <CTableHeaderCell colSpan="2">
@@ -601,10 +605,17 @@ const ProductionNumber = ({ userInfo }) => {
                           (candidateInfo) => candidateInfo.pa_status === 'locked',
                         )}
                         size="sm"
-                        color="primary"
+                        color={
+                          candidate.some((candidateInfo) => candidateInfo.pa_status === 'locked')
+                            ? 'success'
+                            : 'primary'
+                        }
                         onClick={handleProductionAttireScoreSubmit}
                       >
-                        <FontAwesomeIcon icon={faCheck} /> Submit Scores
+                        <FontAwesomeIcon icon={faCheck} />
+                        {candidate.some((candidateInfo) => candidateInfo.pa_status === 'locked')
+                          ? ' Score Submitted'
+                          : ' Submit Score'}
                       </CButton>
                     </CTableHeaderCell>
                   </CTableRow>
