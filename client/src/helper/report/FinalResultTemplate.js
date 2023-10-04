@@ -62,20 +62,23 @@ function FinalHeader() {
 
 function FinalFooter() {
   return (
-    <CFooter className="bg-transparent" style={{ fontSize: 12 }}>
-      <div>
-        <span>Developed by: OCM MIS Division &copy; {new Date().getFullYear()}</span>
-      </div>
-      <div>
-        <span>Printed on {formattedDate}</span>
-      </div>
-    </CFooter>
+    <>
+      <CFooter className="bg-transparent" style={{ fontSize: 12 }}>
+        <div>
+          <span>Developed by: OCM MIS Division &copy; {new Date().getFullYear()}</span>
+        </div>
+        <div>
+          <span>Printed on {formattedDate}</span>
+        </div>
+      </CFooter>
+      <div className="print-note text-danger mx-3">Please set your paper size to 18cmx27cm</div>
+    </>
   )
 }
 
 function Chairman() {
   return (
-    <CRow className="justify-content-around evenly text-center mt-5 mb-2">
+    <CRow className="justify-content-around evenly text-center mt-5 mb-4">
       <CCol>
         ________________________________________
         <br />
