@@ -39,6 +39,7 @@ const TalentPresentation = ({ userInfo }) => {
   const handleRef = (index, ref) => {
     inputRefs.current[index] = ref
   }
+
   const fetchCandidate = async () => {
     try {
       const response = await axios.get(`${ip + api}/getJudgeScore`, {
@@ -60,13 +61,15 @@ const TalentPresentation = ({ userInfo }) => {
   }
 
   const handleScoreChange = async (judgeId, candidateId, score) => {
+    // Validate the score
     if (score === '') {
+      // Reset the score to an empty string in the state
       setModifiedCandidateScores((prevScores) => ({
         ...prevScores,
         [candidateId]: '',
       }))
 
-      // delete the score and rank of the candidate
+      // Delete the score and rank of the candidate
       await axios.delete(`${ip + api}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
@@ -76,16 +79,19 @@ const TalentPresentation = ({ userInfo }) => {
         html: 'Please only provide ratings between 1 and 10.',
         icon: 'error',
       })
+
+      // Reset the score to the previous value in the state
       setModifiedCandidateScores((prevScores) => ({
         ...prevScores,
-        [candidateId]: prevScores,
+        [candidateId]: prevScores[candidateId],
       }))
 
-      // delete the score and rank of the candidate
+      // Delete the score and rank of the candidate
       await axios.delete(`${ip + api}`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else {
+      // Update the score in the state
       setModifiedCandidateScores((prevScores) => ({
         ...prevScores,
         [candidateId]: score,
@@ -96,9 +102,12 @@ const TalentPresentation = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(`${ip + api}`, scoreData)
+
+      // Perform the POST request to update the score
+      const response = await axios.post(`${ip + api}`, scoreData)
     }
   }
+
   const handleSubmit = async () => {
     // Check if at least one input is empty
     let allInputsFilled = true // Assume all inputs are filled initially
@@ -113,7 +122,7 @@ const TalentPresentation = ({ userInfo }) => {
     if (allInputsFilled) {
       Swal.fire({
         title: 'Is this your final Score?',
-        html: "This tabulator will be locked once you have submitted your score. Please review your score. <br> <span class='text-danger'><small>Note: If you want to adjust your score, you can consult with administrator.</small></span>  ",
+        html: "This tabulator system will be locked once you have submitted your scores. Please review your scores. <br> <span class='text-danger'><small>Note: If you want to adjust your scores, you can consult with the administrator.</small></span>  ",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Yes, submit it!',
@@ -245,11 +254,18 @@ const TalentPresentation = ({ userInfo }) => {
               {userInfo.role_type !== 'admin' ? (
                 <CButton
                   disabled={candidate.some((candidateInfo) => candidateInfo.status === 'locked')}
-                  color="primary"
+                  color={
+                    candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                      ? 'success'
+                      : 'primary'
+                  }
                   className="float-end mx-1"
                   onClick={handleSubmit}
                 >
-                  <FontAwesomeIcon icon={faCheck} /> Submit Score
+                  <FontAwesomeIcon icon={faCheck} />
+                  {candidate.some((candidateInfo) => candidateInfo.status === 'locked')
+                    ? ' Score Submitted'
+                    : ' Submit Score'}
                 </CButton>
               ) : (
                 <>
@@ -302,13 +318,13 @@ const TalentPresentation = ({ userInfo }) => {
                     </CTableHeaderCell>
                   </CTableRow>
                   <CTableRow>
-                    <CTableHeaderCell>Taloent Presentation</CTableHeaderCell>
+                    <CTableHeaderCell>Talent Presentation</CTableHeaderCell>
                     <CTableDataCell>
                       Each candidate will be rated 1 to 10, 1 being the lowest and 10 being the
-                      highest based on
+                      highest based on{' '}
                       <strong>
                         Reality of Talent, Deportment/Stage Presence, Performance/Mastery, Costume &
-                        Relevance of Props.{' '}
+                        Relevance of Props.
                       </strong>
                     </CTableDataCell>
                   </CTableRow>
