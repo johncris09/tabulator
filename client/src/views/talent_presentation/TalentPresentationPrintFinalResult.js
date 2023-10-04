@@ -24,12 +24,9 @@ const TalentPresentationPrintFinalResult = () => {
   const fetchConsolidatedScoreAndRank = async () => {
     try {
       const response = await axios.get(`${ip + api}/final_result`)
-
       // Sort the data by rank
       const sortedData = [...response.data].sort((a, b) => b.rank - a.rank)
-      console.info(sortedData)
       setConsolidatedRank(sortedData)
-      // console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -39,9 +36,9 @@ const TalentPresentationPrintFinalResult = () => {
     if (rank === 1) {
       return 'MISS TALENT 2023'
     } else if (rank === 2) {
-      return '1st runner up'
+      return '1st Runner-up'
     } else if (rank === 3) {
-      return '2nd runner up'
+      return '2nd Runner-up'
     } else {
       return '' // Handle other ranks or no rank
     }

@@ -23,9 +23,26 @@ const FinalRoundPrintFinalResult = () => {
   const fetchConsolidatedScoreAndRank = async () => {
     try {
       const response = await axios.get(`${ip + api}/final_result`)
-      setConsolidatedRank(response.data)
+      // Sort the data by rank
+      const sortedData = [...response.data].sort((a, b) => b.rank - a.rank)
+      setConsolidatedRank(sortedData)
     } catch (error) {
       console.error('Error fetching data:', error)
+    }
+  }
+  const newRank = (rank) => {
+    if (rank === 1) {
+      return 'Binibining Oroquieta 2023'
+    } else if (rank === 2) {
+      return '1st Runner-up'
+    } else if (rank === 3) {
+      return '2nd Runner-up'
+    } else if (rank === 4) {
+      return '3rd Runner-up'
+    } else if (rank === 5) {
+      return '4th Runner-up'
+    } else {
+      return ''
     }
   }
   return (
@@ -33,7 +50,7 @@ const FinalRoundPrintFinalResult = () => {
       <FinalHeader />
 
       <div className="text-center mb-4">
-        <h5>Final Round Final Result</h5>
+        <h5>Final Round</h5>
       </div>
       <CTable bordered className="table-sm tableFinalResult " borderColor="dark">
         <CTableHead style={{ background: 'orange' }}>
@@ -48,7 +65,7 @@ const FinalRoundPrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
-              <CTableDataCell>{row.rank}</CTableDataCell>
+              <CTableDataCell>{newRank(row.rank)}</CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>
