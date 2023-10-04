@@ -35,14 +35,13 @@ const ProductionAttirePrintFinalResult = () => {
       <FinalHeader />
 
       <div className="text-center mb-4">
-        <h5>Production Attire Final Result</h5>
+        <h5>Best in Production Attire</h5>
       </div>
       <CTable bordered className="table-sm tableFinalResult " borderColor="dark">
         <CTableHead style={{ background: 'orange' }}>
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
             <CTableHeaderCell>Name</CTableHeaderCell>
-            <CTableHeaderCell>Final Rank</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -50,7 +49,6 @@ const ProductionAttirePrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
-              <CTableDataCell>{row.rank}</CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>
