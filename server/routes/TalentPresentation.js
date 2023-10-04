@@ -583,9 +583,10 @@ router.post("/", async (req, res, next) => {
           });
         });
       });
-    });
+    }); 
+    
+    res.status(200).json({ message: "Score saved successfully!" }); 
 
-    // res.status(200).json({ message: "Score saved successfully!" });
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -619,8 +620,7 @@ router.delete("/", async (req, res, next) => {
         res.status(500).json({ error: "Error deleting data" });
         return;
       }
-
-      console.log("Data deleted successfully:", result);
+      
       res.status(200).json({ message: "Data deleted successfully" });
     });
   } catch (error) {
@@ -629,12 +629,5 @@ router.delete("/", async (req, res, next) => {
   }
 });
 
-router.get("/rank", async (req, res, next) => {
-  try {
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 export default router;
