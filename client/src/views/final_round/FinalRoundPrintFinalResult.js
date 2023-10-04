@@ -32,7 +32,7 @@ const FinalRoundPrintFinalResult = () => {
   }
   const newRank = (rank) => {
     if (rank === 1) {
-      return 'Binibining Oroquieta 2023'
+      return 'Bb. Oroquieta 2023'
     } else if (rank === 2) {
       return '1st Runner-up'
     } else if (rank === 3) {
@@ -46,7 +46,7 @@ const FinalRoundPrintFinalResult = () => {
     }
   }
   return (
-    <div className="final_result_container">
+    <div className="final_result_container_5">
       <FinalHeader />
 
       <div className="text-center mb-4">

@@ -45,10 +45,9 @@ const TalentPresentationPrintFinalResult = () => {
   }
 
   return (
-    <div className="talent_night_final_result_container">
+    <div className="final_result_container_3">
       <FinalHeader />
       <div className="text-center mb-2">
-        {/* <h5>Talent Presentation Final Result</h5> */}
         <h5>MISS TALENT 2023</h5>
         <p>Final Result</p>
       </div>
@@ -72,7 +71,6 @@ const TalentPresentationPrintFinalResult = () => {
       </CTable>
       <Chairman />
       <FinalFooter />
-      <div className="print-note text-danger mx-3">Please set your paper size to 18cmx27cm</div>
     </div>
   )
 }

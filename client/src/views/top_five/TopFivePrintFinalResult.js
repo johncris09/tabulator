@@ -47,7 +47,7 @@ const TopFivePrintFinalResult = () => {
     }
   }
   return (
-    <div className="final_result_container">
+    <div className="final_result_container_5">
       <FinalHeader />
 
       <div className="text-center mb-4">

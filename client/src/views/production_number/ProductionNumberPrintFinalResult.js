@@ -32,9 +32,8 @@ const ProductionNumberPrintFinalResult = () => {
   }
 
   return (
-    <div className="final_result_container">
+    <div className="final_result_container_1">
       <FinalHeader />
-
       <div className="text-center mb-4">
         <h5>Best in Production Number</h5>
       </div>
@@ -54,11 +53,7 @@ const ProductionNumberPrintFinalResult = () => {
           ))}
         </CTableBody>
       </CTable>
-      <br />
       <Chairman />
-      <br />
-      <br />
-      <br />
       <FinalFooter />
     </div>
   )

@@ -30,9 +30,8 @@ const SwimWearPrintFinalResult = () => {
   }
 
   return (
-    <div className="final_result_container">
+    <div className="final_result_container_1">
       <FinalHeader />
-
       <div className="text-center mb-4">
         <h5>Best in Swim Wear</h5>
       </div>
