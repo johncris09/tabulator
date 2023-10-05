@@ -68,7 +68,7 @@ router.get("/final_result", async (req, res, next) => {
             name: name,
             rank: ranks[candidateRank],
           });
-        } 877
+        }
       }
 
       res.json(processedResult);
