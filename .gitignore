@@ -1,0 +1,57 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+
+# client
+client/node_modules
+client/package-lock.json
+client/yarn.lock
+
+
+# testing
+client/coverage
+
+# production
+client/build
+
+# misc
+client/.github
+client/.eslintcache
+client/.DS_Store
+client/.idea
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+
+client/.gitignore
+client/README.md
+client/migration.md
+client/LICENSE
+client/src/assets/images/avatars
+client/src/assets/images/angular.jpg
+client/src/assets/images/react.jpg
+client/src/assets/images/vue.jpg
+
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+client/src/views/base
+client/src/views/buttons
+client/src/views/charts
+client/src/views/forms
+client/src/views/icons
+client/src/views/notifications
+client/src/views/pages/register
+client/src/views/theme
+client/src/views/widgets
+client/src/views/activity_log
+
+
+# server
+server/node_modules
+server/package-lock.json
+
+# .gitignore
