@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Oct 02, 2023 at 06:58 AM
+-- Host: 127.0.0.1
+-- Generation Time: Oct 05, 2023 at 08:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -131,12 +131,12 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `title`, `image`, `link`, `hide`) VALUES
-(1, 'TALENT PRESENTATION', 'talentPresentationImage', '/talent_presentation', 1),
-(2, 'PRODUCTION NUMBER & PRODUCTION ATTIRE', 'productionNumberImage', '/production_number', 0),
-(4, 'BEST IN SWIM WEAR', 'swimWearImage', '/swim_wear', 0),
-(5, 'BEST IN EVENING GOWN', 'eveninggowimage', '/evening_gown', 0),
-(6, 'TOP FIVE', 'topFiveImage', '/top_five', 0),
-(7, 'FINAL ROUND', 'finalRoundImage', '/final_round', 0);
+(1, 'TALENT PRESENTATION', 'talentPresentationImage', '/talent_presentation', 0),
+(2, 'PRODUCTION NUMBER & PRODUCTION ATTIRE', 'productionNumberImage', '/production_number', 1),
+(4, 'BEST IN SWIM WEAR', 'swimWearImage', '/swim_wear', 1),
+(5, 'BEST IN EVENING GOWN', 'eveninggowimage', '/evening_gown', 1),
+(6, 'TOP FIVE', 'topFiveImage', '/top_five', 1),
+(7, 'FINAL ROUND', 'finalRoundImage', '/final_round', 1);
 
 -- --------------------------------------------------------
 
@@ -167,6 +167,78 @@ CREATE TABLE `talent_presentation` (
   `rank` decimal(10,2) DEFAULT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'unlocked'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `talent_presentation`
+--
+
+INSERT INTO `talent_presentation` (`id`, `candidate`, `judge`, `score`, `rank`, `status`) VALUES
+(2, 1, 0, 29.5, 7.00, 'unlocked'),
+(3, 2, 0, 31.5, 8.00, 'unlocked'),
+(4, 3, 0, 23.0, 1.50, 'unlocked'),
+(5, 4, 0, 23.0, 1.50, 'unlocked'),
+(6, 5, 0, 28.5, 6.00, 'unlocked'),
+(7, 6, 0, 32.0, 9.00, 'unlocked'),
+(8, 7, 0, 44.0, 11.00, 'unlocked'),
+(9, 8, 0, 41.0, 10.00, 'unlocked'),
+(10, 9, 0, 27.5, 5.00, 'unlocked'),
+(11, 10, 0, 23.5, 3.00, 'unlocked'),
+(12, 11, 0, 26.5, 4.00, 'unlocked'),
+(14, 1, 2, 8.0, 6.50, 'locked'),
+(15, 1, 7, 6.7, 10.00, 'locked'),
+(16, 2, 2, 9.0, 2.50, 'locked'),
+(17, 3, 2, 10.0, 1.00, 'locked'),
+(19, 2, 7, 6.5, 11.00, 'locked'),
+(20, 4, 2, 6.0, 9.00, 'locked'),
+(21, 3, 7, 7.8, 8.00, 'locked'),
+(22, 5, 2, 5.0, 10.50, 'locked'),
+(23, 6, 2, 5.0, 10.50, 'locked'),
+(24, 7, 2, 7.0, 8.00, 'locked'),
+(25, 8, 2, 8.0, 6.50, 'locked'),
+(26, 4, 7, 8.0, 5.50, 'locked'),
+(27, 9, 2, 9.0, 2.50, 'locked'),
+(28, 5, 7, 9.8, 1.00, 'locked'),
+(29, 6, 7, 8.8, 3.00, 'locked'),
+(31, 7, 7, 7.7, 9.00, 'locked'),
+(32, 8, 7, 8.0, 5.50, 'locked'),
+(33, 9, 7, 8.0, 5.50, 'locked'),
+(34, 10, 7, 9.0, 2.00, 'locked'),
+(35, 11, 2, 8.5, 5.00, 'locked'),
+(36, 11, 7, 8.0, 5.50, 'locked'),
+(37, 10, 2, 8.7, 4.00, 'locked'),
+(38, 1, 6, 6.0, 10.50, 'locked'),
+(39, 2, 6, 7.6, 5.00, 'locked'),
+(40, 3, 6, 7.0, 6.50, 'locked'),
+(41, 4, 6, 8.7, 1.00, 'locked'),
+(42, 5, 6, 7.0, 6.50, 'locked'),
+(43, 6, 6, 6.7, 8.50, 'locked'),
+(44, 7, 6, 6.0, 10.50, 'locked'),
+(45, 8, 6, 6.7, 8.50, 'locked'),
+(46, 9, 6, 8.0, 3.00, 'locked'),
+(47, 10, 6, 8.0, 3.00, 'locked'),
+(48, 11, 6, 8.0, 3.00, 'locked'),
+(50, 2, 5, 8.0, 5.50, 'locked'),
+(51, 3, 5, 9.0, 3.50, 'locked'),
+(52, 4, 5, 9.0, 3.50, 'locked'),
+(53, 5, 5, 10.0, 1.50, 'locked'),
+(54, 6, 5, 7.0, 8.00, 'locked'),
+(55, 7, 5, 6.0, 9.00, 'locked'),
+(56, 8, 5, 5.0, 10.50, 'locked'),
+(57, 9, 5, 8.0, 5.50, 'locked'),
+(58, 10, 5, 5.0, 10.50, 'locked'),
+(59, 11, 5, 7.5, 7.00, 'locked'),
+(60, 1, 5, 10.0, 1.50, 'locked'),
+(61, 1, 4, 10.0, 1.00, 'locked'),
+(62, 2, 4, 7.0, 7.50, 'locked'),
+(63, 3, 4, 8.0, 4.00, 'locked'),
+(64, 4, 4, 8.0, 4.00, 'locked'),
+(65, 5, 4, 6.0, 9.00, 'locked'),
+(66, 6, 4, 9.0, 2.00, 'locked'),
+(67, 7, 4, 7.0, 7.50, 'locked'),
+(68, 8, 4, 5.0, 10.00, 'locked'),
+(69, 9, 4, 4.0, 11.00, 'locked'),
+(70, 10, 4, 8.0, 4.00, 'locked'),
+(72, 11, 4, 7.9, 6.00, 'locked');
 
 -- --------------------------------------------------------
 
@@ -331,7 +403,7 @@ ALTER TABLE `swim_wear`
 -- AUTO_INCREMENT for table `talent_presentation`
 --
 ALTER TABLE `talent_presentation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `top_five`
