@@ -32,19 +32,18 @@ router.get("/getJudgeScore", async (req, res, next) => {
 router.get("/final_result", async (req, res, next) => {
   try {
     const q = `
-      SELECT
-          candidate.id,
-          candidate.number,
-          candidate.name,
-          talent_presentation.rank
-      FROM
-          candidate
-      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
-      WHERE
-          judge = 0 AND score != 0
-      group by candidate.id
-      ORDER BY
-          rank ASC;`;
+  SELECT
+      candidate.id,
+      candidate.number,
+      candidate.name,
+      talent_presentation.rank
+  FROM
+      candidate
+  JOIN talent_presentation ON talent_presentation.candidate = candidate.id
+  WHERE
+      judge = 0 AND score != 0
+  GROUP BY candidate.id
+  ORDER BY talent_presentation.rank ASC;`;
 
     db.query(q, (err, result) => {
       if (err) {
@@ -54,29 +53,27 @@ router.get("/final_result", async (req, res, next) => {
       }
 
       const maxRank = 3;
-      let rank = 0;
       const ranks = {};
       const processedResult = [];
 
       for (const row of result) {
         const { id, rank: candidateRank, number, name } = row;
 
-        ranks[candidateRank] ??= ++rank;
+        ranks[candidateRank] ??= ranks[candidateRank] || processedResult.length + 1;
 
-        if (ranks[candidateRank] > maxRank) {
-          break;
-        }
-
-        processedResult.push({
-          candidateId: id,
-          number: number,
-          name: name,
-          rank: rank,
-        });
+        if (ranks[candidateRank] <= maxRank) {
+          processedResult.push({
+            candidateId: id,
+            number: number,
+            name: name,
+            rank: ranks[candidateRank],
+          });
+        } 877
       }
 
       res.json(processedResult);
     });
+
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -583,9 +580,9 @@ router.post("/", async (req, res, next) => {
           });
         });
       });
-    }); 
-    
-    res.status(200).json({ message: "Score saved successfully!" }); 
+    });
+
+    res.status(200).json({ message: "Score saved successfully!" });
 
   } catch (error) {
     console.error("Error saving score:", error);
@@ -620,7 +617,7 @@ router.delete("/", async (req, res, next) => {
         res.status(500).json({ error: "Error deleting data" });
         return;
       }
-      
+
       res.status(200).json({ message: "Data deleted successfully" });
     });
   } catch (error) {
