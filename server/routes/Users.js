@@ -6,7 +6,7 @@ const router = express.Router();
 const table = "user";
 
 router.get("/", async (req, res, next) => {
-  const q = `SELECT * FROM ${table}`
+  const q = `SELECT * FROM ${table}`;
   db.query(q, (err, result) => {
     if (err) throw err;
     res.json(result);
@@ -15,13 +15,13 @@ router.get("/", async (req, res, next) => {
 
 // Middleware to authenticate the token
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers.authorization; 
-  const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.sendStatus(401); // Unauthorized
   }
-  jwt.verify(token, 'secretKey', (err, user) => {
+  jwt.verify(token, "secretKey", (err, user) => {
     if (err) {
       return res.sendStatus(200); // Forbidden
     }
@@ -30,25 +30,24 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-
-router.get('/authinfo', authenticateToken, (req, res) => {
+router.get("/authinfo", authenticateToken, (req, res) => {
   const userId = req.user.id;
   // SQL query to retrieve user data based on the user ID from the token
-  const sql = 'SELECT * FROM user WHERE id = ?';
+  const sql = "SELECT * FROM user WHERE id = ?";
   db.query(sql, [userId], (err, results) => {
     if (err) {
-      console.error('Error executing SQL query:', err);
+      console.error("Error executing SQL query:", err);
       return res.sendStatus(500); // Internal server error
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     const user = results[0];
     res.json(user);
   });
-}); 
+});
 
 // Function to hash the password
 function hashPassword(password) {
@@ -65,10 +64,8 @@ function hashPassword(password) {
   });
 }
 
-
 router.post("/", async (req, res, next) => {
   try {
-
     // Hash the password using the hashPassword function
     const hashedPassword = await hashPassword(req.body.password);
 
@@ -88,9 +85,28 @@ router.post("/", async (req, res, next) => {
     console.error("Error:", error);
     res.status(500).json({ error: "Error inserting data" });
   }
-}); 
+});
 
+router.post("/update_is_logged_in", async (req, res, next) => {
+  try {
+    const { id } = req.body;
 
+    const updateSql = "UPDATE user SET is_logged_in = 0 WHERE id = ?";
+
+    // Update is_logged_in to 1
+    db.query(updateSql, [id], (updateErr) => {
+      if (updateErr) {
+        console.error("Error updating is_logged_in:", updateErr);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    });
+
+    res.status(200).json({ message: "Logout successfully!" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Error inserting data" });
+  }
+});
 router.delete("/", async (req, res, next) => {
   try {
     const { id } = req.body;
@@ -111,6 +127,5 @@ router.delete("/", async (req, res, next) => {
     res.status(500).json({ error: "Error deleting data" });
   }
 });
-
 
 export default router;

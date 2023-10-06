@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   CAvatar,
   CDropdown,
@@ -9,12 +10,20 @@ import {
 } from '@coreui/react'
 import { cilAccountLogout } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-
+import axios from 'axios'
+import ip from './../../constant/ip'
 import avatar8 from './../../assets/images/user.png'
 
 const AppHeaderDropdown = ({ userInfo }) => {
-  const handleLogout = () => {
+  const navigate = useNavigate()
+  const api = 'users'
+  const handleLogout = async () => {
+    const response = await axios.post(`${ip + api}/update_is_logged_in`, {
+      id: userInfo.id,
+    })
+
     localStorage.removeItem('token')
+    navigate('/login', { replace: true })
   }
   return (
     <CDropdown variant="nav-item">

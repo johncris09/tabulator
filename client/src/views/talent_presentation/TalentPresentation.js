@@ -32,9 +32,16 @@ const TalentPresentation = ({ userInfo }) => {
   const [modifiedCandidateScores, setModifiedCandidateScores] = useState({})
 
   useEffect(() => {
+    // Check if the token is set in local storage or cookies
+    const token = localStorage.getItem('token') // Assuming the token is stored in local storage
+
+    if (!token) {
+      // If the token is set, navigate to the dashboard
+      navigate('/login', { replace: true })
+    }
     fetchCandidate()
     fetchConsolidatedScoreAndRank()
-  }, [candidate])
+  }, [candidate, navigate])
 
   const handleRef = (index, ref) => {
     inputRefs.current[index] = ref
