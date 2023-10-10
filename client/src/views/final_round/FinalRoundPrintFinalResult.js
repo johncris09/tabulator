@@ -34,13 +34,13 @@ const FinalRoundPrintFinalResult = () => {
     if (rank === 1) {
       return 'Bb. Oroquieta 2023'
     } else if (rank === 2) {
-      return '1st Runner-up'
+      return '1st Runner-Up'
     } else if (rank === 3) {
-      return '2nd Runner-up'
+      return '2nd Runner-Up'
     } else if (rank === 4) {
-      return '3rd Runner-up'
+      return '3rd Runner-Up'
     } else if (rank === 5) {
-      return '4th Runner-up'
+      return '4th Runner-Up'
     } else {
       return ''
     }
@@ -57,6 +57,7 @@ const FinalRoundPrintFinalResult = () => {
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
             <CTableHeaderCell>Name</CTableHeaderCell>
+            <CTableHeaderCell>Sponsoring Unit</CTableHeaderCell>
             <CTableHeaderCell>Final Rank</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
@@ -65,6 +66,7 @@ const FinalRoundPrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
+              <CTableDataCell className="text-left">{row.sponsor}</CTableDataCell>
               <CTableDataCell>{newRank(row.rank)}</CTableDataCell>
             </CTableRow>
           ))}

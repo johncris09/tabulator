@@ -408,7 +408,7 @@ const ProductionNumber = ({ userInfo }) => {
                     Each candidate will be rated 1 to 10, 1 being the lowest and 10 being the
                     highest based on{' '}
                     <strong>
-                      Beauty and Face Charm, Poise, Grace and Carriage, Stage Projection, Wit and
+                      Beauty of Face and Charm, Poise, Grace and Carriage, Stage Projection, Wit and
                       Intelligence.
                     </strong>
                   </CTableDataCell>

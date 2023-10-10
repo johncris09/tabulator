@@ -35,6 +35,7 @@ router.get("/final_result", async (req, res, next) => {
       SELECT
           candidate.id,
           candidate.number,
+          candidate.sponsor,
           candidate.name,
           top_five.rank
       FROM
@@ -58,7 +59,7 @@ router.get("/final_result", async (req, res, next) => {
       const processedResult = [];
 
       for (const row of result) {
-        const { id, rank: candidateRank, number, name } = row;
+        const { id, rank: candidateRank, number, name, sponsor } = row;
 
         ranks[candidateRank] ??=
           ranks[candidateRank] || processedResult.length + 1;
@@ -67,12 +68,13 @@ router.get("/final_result", async (req, res, next) => {
           processedResult.push({
             candidateId: id,
             number: number,
+            sponsor: sponsor,
             name: name,
             candidateRank: candidateRank,
             rank: ranks[candidateRank],
           });
         }
-      }
+      }5
 
       res.json(processedResult);
     });

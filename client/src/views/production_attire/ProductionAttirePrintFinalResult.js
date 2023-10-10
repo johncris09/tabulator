@@ -41,6 +41,7 @@ const ProductionAttirePrintFinalResult = () => {
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
             <CTableHeaderCell>Name</CTableHeaderCell>
+            <CTableHeaderCell>Sponsoring Unit</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -48,6 +49,7 @@ const ProductionAttirePrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
+              <CTableDataCell className="text-left">{row.sponsor}</CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>

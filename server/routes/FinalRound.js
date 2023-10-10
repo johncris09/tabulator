@@ -49,6 +49,7 @@ router.get("/final_result", async (req, res, next) => {
       SELECT
           candidate.id,
           candidate.number,
+          candidate.sponsor,
           candidate.name,
           final_round.rank
       FROM
@@ -60,6 +61,7 @@ router.get("/final_result", async (req, res, next) => {
       ORDER BY
           rank ASC;`;
 
+
     db.query(q, (err, result) => {
       if (err) {
         console.error("Error executing MySQL query:", err);
@@ -68,26 +70,26 @@ router.get("/final_result", async (req, res, next) => {
       }
 
       const maxRank = 5;
-      let rank = 0;
       const ranks = {};
       const processedResult = [];
 
       for (const row of result) {
-        const { id, rank: candidateRank, number, name } = row;
+        const { id, rank: candidateRank, number, name, sponsor } = row;
 
-        ranks[candidateRank] ??= ++rank;
+        ranks[candidateRank] ??=
+          ranks[candidateRank] || processedResult.length + 1;
 
-        if (ranks[candidateRank] > maxRank) {
-          break;
+        if (ranks[candidateRank] <= maxRank) {
+          processedResult.push({
+            candidateId: id,
+            number: number,
+            sponsor: sponsor,
+            name: name,
+            candidateRank: candidateRank,
+            rank: ranks[candidateRank],
+          });
         }
-
-        processedResult.push({
-          candidateId: id,
-          number: number,
-          name: name,
-          rank: rank,
-        });
-      }
+      } 5
 
       res.json(processedResult);
     });
@@ -606,7 +608,7 @@ router.post("/", async (req, res, next) => {
     });
 
     res.status(200).json({ message: "Score saved successfully!" });
-    
+
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -639,7 +641,7 @@ router.post("/update", async (req, res, next) => {
     const updateParams = [null, null, judgeId, candidateId];
     db.query(updateQuery, updateParams);
 
-    res.status(200).json({ message: "Score Updated!"  });
+    res.status(200).json({ message: "Score Updated!" });
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });

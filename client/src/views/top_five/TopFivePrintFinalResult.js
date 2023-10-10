@@ -58,8 +58,8 @@ const TopFivePrintFinalResult = () => {
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
             <CTableHeaderCell>Name</CTableHeaderCell>
+            <CTableHeaderCell>Sponsoring Unit</CTableHeaderCell>
             <CTableHeaderCell>Rank</CTableHeaderCell>
-            <CTableHeaderCell>Award</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -67,7 +67,7 @@ const TopFivePrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
-              <CTableDataCell className="text-left">{row.candidateRank}</CTableDataCell>
+              <CTableDataCell>{row.sponsor}</CTableDataCell>
               <CTableDataCell>{newRank(row.rank)}</CTableDataCell>
             </CTableRow>
           ))}

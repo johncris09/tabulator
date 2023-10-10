@@ -26,6 +26,7 @@ const ProductionNumberPrintFinalResult = () => {
     try {
       const response = await axios.get(`${ip + api}/final_result`)
       setConsolidatedRank(response.data)
+      console.info(response.data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -42,6 +43,7 @@ const ProductionNumberPrintFinalResult = () => {
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
             <CTableHeaderCell>Name</CTableHeaderCell>
+            <CTableHeaderCell>Sponsoring Unit</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
@@ -49,6 +51,7 @@ const ProductionNumberPrintFinalResult = () => {
             <CTableRow key={row.id} className="text-center">
               <CTableDataCell className="text-left">{row.number}</CTableDataCell>
               <CTableDataCell className="text-left">{row.name}</CTableDataCell>
+              <CTableDataCell className="text-left">{row.sponsor}</CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>

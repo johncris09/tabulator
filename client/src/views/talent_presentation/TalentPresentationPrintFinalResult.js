@@ -36,9 +36,9 @@ const TalentPresentationPrintFinalResult = () => {
     if (rank === 1) {
       return 'MISS TALENT 2023'
     } else if (rank === 2) {
-      return '1st Runner-up'
+      return '1st Runner-Up'
     } else if (rank === 3) {
-      return '2nd Runner-up'
+      return '2nd Runner-Up'
     } else {
       return '' // Handle other ranks or no rank
     }
