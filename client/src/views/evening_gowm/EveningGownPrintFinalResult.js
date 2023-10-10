@@ -35,7 +35,12 @@ const EveningGownPrintFinalResult = () => {
       <div className="text-center mb-4">
         <h5>Best in Evening Gown</h5>
       </div>
-      <CTable bordered className="table-sm tableFinalResult " borderColor="dark">
+      <CTable
+        style={{ width: '96%' }}
+        bordered
+        className="table-sm tableFinalResult "
+        borderColor="dark"
+      >
         <CTableHead style={{ background: 'orange' }}>
           <CTableRow className="text-center">
             <CTableHeaderCell>Candidate #</CTableHeaderCell>
