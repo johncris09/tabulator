@@ -73,25 +73,24 @@ router.get("/final_result", async (req, res, next) => {
       }
 
       const maxRank = 1;
-      let rank = 0;
       const ranks = {};
       const processedResult = [];
 
       for (const row of result) {
         const { id, rank: candidateRank, number, name } = row;
 
-        ranks[candidateRank] ??= ++rank;
+        ranks[candidateRank] ??=
+          ranks[candidateRank] || processedResult.length + 1;
 
-        if (ranks[candidateRank] > maxRank) {
-          break;
+        if (ranks[candidateRank] <= maxRank) {
+          processedResult.push({
+            candidateId: id,
+            number: number,
+            name: name,
+            candidateRank: candidateRank,
+            rank: ranks[candidateRank],
+          });
         }
-
-        processedResult.push({
-          candidateId: id,
-          number: number,
-          name: name,
-          rank: rank,
-        });
       }
 
       res.json(processedResult);
@@ -142,7 +141,7 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
       // Initialize the fl
       let hasUnlockedStatus = false;
       const total_count = result[0]["total_count"];
- 
+
       if (total_count === 5) {
         hasUnlockedStatus = true; // Set the flag if an unlocked status is found
       }
@@ -258,7 +257,6 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
       });
     });
 
-    
     const q = `SELECT
         c.number as number,
         c.name as name,
@@ -605,7 +603,6 @@ router.post("/", async (req, res, next) => {
     });
 
     res.status(200).json({ message: "Score saved successfully!" });
-    
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -646,7 +643,6 @@ router.delete("/", async (req, res, next) => {
     res.status(500).json({ error: "Error deleting data" });
   }
 });
-
 
 router.get("/rank", async (req, res, next) => {
   try {
