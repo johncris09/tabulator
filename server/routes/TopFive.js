@@ -54,25 +54,24 @@ router.get("/final_result", async (req, res, next) => {
       }
 
       const maxRank = 5;
-      let rank = 0;
       const ranks = {};
       const processedResult = [];
 
       for (const row of result) {
         const { id, rank: candidateRank, number, name } = row;
 
-        ranks[candidateRank] ??= ++rank;
+        ranks[candidateRank] ??=
+          ranks[candidateRank] || processedResult.length + 1;
 
-        if (ranks[candidateRank] > maxRank) {
-          break;
+        if (ranks[candidateRank] <= maxRank) {
+          processedResult.push({
+            candidateId: id,
+            number: number,
+            name: name,
+            candidateRank: candidateRank,
+            rank: ranks[candidateRank],
+          });
         }
-
-        processedResult.push({
-          candidateId: id,
-          number: number,
-          name: name,
-          rank: rank,
-        });
       }
 
       res.json(processedResult);
@@ -682,22 +681,20 @@ router.post("/insertToFinalRound", async (req, res, next) => {
       }
 
       const maxRank = 5;
-      let rank = 0;
       const ranks = {};
       const processedResult = [];
 
       for (const row of result) {
         const { id, rank: candidateRank, number, name } = row;
 
-        ranks[candidateRank] ??= ++rank;
+        ranks[candidateRank] ??=
+          ranks[candidateRank] || processedResult.length + 1;
 
-        if (ranks[candidateRank] > maxRank) {
-          break;
+        if (ranks[candidateRank] <= maxRank) {
+          processedResult.push({
+            candidateId: id,
+          });
         }
-
-        processedResult.push({
-          candidateId: id,
-        });
       }
 
       const judgesquery = `SELECT *   FROM user  WHERE   role_type = "judge" ;`;
