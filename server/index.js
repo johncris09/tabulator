@@ -1,5 +1,6 @@
 import express from "express"
 import cors from "cors"
+import monitorRoute from "./routes/Monitor.js"
 import talentPresentationRoute from "./routes/TalentPresentation.js"
 import productionNumberRoute from "./routes/ProductionNumber.js"
 import productionAttireRoute from "./routes/ProductionAttire.js"
@@ -32,6 +33,7 @@ app.use("/evening_gown",  eveningGownRoute);
 app.use("/top_five",  topFiveRoute);
 app.use("/final_round",  finalRoundRoute);
 app.use("/settings",  settingsRoute);
+app.use("/monitor",  monitorRoute);
 
 
 app.get('/', (req, res) => {
