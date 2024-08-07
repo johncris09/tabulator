@@ -22,6 +22,7 @@ import TopFivePrintFinalResult from './views/top_five/TopFivePrintFinalResult'
 import FinalRoundPrintPerJudge from './views/final_round/FinalRoundPrintPerJudge'
 import FinalRoundPrintSummary from './views/final_round/FinalRoundPrintSummary'
 import FinalRoundPrintFinalResult from './views/final_round/FinalRoundPrintFinalResult'
+import AuditionPrintSummary from './views/audition/AuditionPrintSummary'
 
 const loading = (
   <div className="pt-3 text-center">
@@ -185,6 +186,13 @@ class App extends Component {
               element={<FinalRoundPrintFinalResult />}
             />
             <Route path="*" name="Home" element={<DefaultLayout />} />
+
+            <Route
+              exact
+              path="/audition/summary"
+              name="Audition Print Summary"
+              element={<AuditionPrintSummary />}
+            />
           </Routes>
         </Suspense>
       </HashRouter>

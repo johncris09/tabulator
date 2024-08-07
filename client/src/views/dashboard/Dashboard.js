@@ -4,6 +4,7 @@ import { CButton, CCard, CCardBody, CCardImage, CCardText, CCol, CRow } from '@c
 import ip from './../../constant/ip'
 import axios from 'axios'
 
+import auditionImage from 'src/assets/images/event/audition.jpg'
 import talentPresentationImage from 'src/assets/images/event/talent presentation.jpg'
 import productionAttireImage from 'src/assets/images/event/production_attire.jpg'
 import swimWearImage from 'src/assets/images/event/swim_wear.jpg'
@@ -23,6 +24,7 @@ const Dashboard = ({ userInfo }) => {
     eveningGownImage,
     topFiveImage,
     finalRoundImage,
+    auditionImage,
   ]
 
   useEffect(() => {

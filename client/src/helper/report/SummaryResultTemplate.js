@@ -59,6 +59,36 @@ function Header() {
   )
 }
 
+function AuditionHeader() {
+  return (
+    <CRow className="justify-content-around evenly text-center mt-4 mb-4">
+      <CCol>
+        <CImage
+          rounded
+          src={bblogo}
+          style={{
+            width: '40%',
+            height: '100px',
+            maxWidth: '140px',
+            maxHeight: '90px',
+          }}
+        />
+      </CCol>
+      <CCol>
+        <CImage
+          rounded
+          src={logo}
+          style={{
+            width: '40%',
+            height: 'auto',
+            maxWidth: '90px',
+            maxHeight: '90px',
+          }}
+        />
+      </CCol>
+    </CRow>
+  )
+}
 function Judges() {
   return (
     <>
@@ -108,4 +138,31 @@ function Footer() {
   )
 }
 
-export { Header, Footer, Judges }
+function AuditionFooter() {
+  return (
+    <CFooter
+      className="bg-transparent"
+      style={{
+        color: 'grey',
+        position: 'absolute',
+        bottom: 20,
+        left: 10,
+        right: 20,
+        textAlign: 'center',
+        paddingTop: 10,
+        fontSize: '8pt',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div>
+        <span>Developed by: OCM MIS Division &copy; {new Date().getFullYear()}</span>
+      </div>
+      <div>
+        <span>Printed on {formattedDate}</span>
+      </div>
+    </CFooter>
+  )
+}
+
+export { Header, Footer, AuditionFooter, Judges, AuditionHeader }

@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import monitorRoute from "./routes/Monitor.js"
+import auditionRoute from "./routes/Audition.js"
 import talentPresentationRoute from "./routes/TalentPresentation.js"
 import productionNumberRoute from "./routes/ProductionNumber.js"
 import productionAttireRoute from "./routes/ProductionAttire.js"
@@ -25,6 +26,7 @@ app.use(cors())
 app.use("/login",  loginRoute);
 app.use("/users",  userRoute);
 app.use("/candidate",  candidateRoute);
+app.use("/audition",  auditionRoute);
 app.use("/talent_presentation",  talentPresentationRoute);
 app.use("/production_number",  productionNumberRoute);
 app.use("/production_attire",  productionAttireRoute);

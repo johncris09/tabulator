@@ -13,4 +13,22 @@ router.get("/", async (req, res, next) => {
 });
 
 
+// Route to insert data
+router.post('/insert', (req, res) => {
+  const { name, age } = req.body;
+  return req;
+  // if (!name || !age) {
+  //   return res.status(400).send({ error: true, message: 'Please provide name and age' });
+  // }
+
+  // const query = 'INSERT INTO users (name, age) VALUES (?, ?)';
+  // db.query(query, [name, age], (err, results) => {
+  //   if (err) {
+  //     console.error('Error inserting data:', err);
+  //     return res.status(500).send({ error: true, message: 'Database error' });
+  //   }
+  //   res.send({ error: false, message: 'Data inserted successfully', data: results });
+  // });
+});
+
 export default router;

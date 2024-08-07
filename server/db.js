@@ -4,7 +4,7 @@ const dbConfig = {
   host: "localhost",
   user: "root",
   password: "",
-  database: "tabulator"
+  database: "tabulator",
 };
 
 const db = mysql.createConnection(dbConfig);

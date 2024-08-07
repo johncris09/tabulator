@@ -8,7 +8,7 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import { cilAccountLogout } from '@coreui/icons'
+import { cilAccountLogout, cilPeople, cilUserPlus } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import axios from 'axios'
 import ip from './../../constant/ip'
@@ -32,10 +32,17 @@ const AppHeaderDropdown = ({ userInfo }) => {
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Account</CDropdownHeader>
-        <CDropdownItem href="#" onClick={handleLogout}>
+        <CDropdownItem href="#">
           <CIcon icon={cilAccountLogout} className="me-2" />
           Welcome {userInfo.username}
         </CDropdownItem>
+        {/* {userInfo.role_type === 'admin' && (
+          <CDropdownItem href="/#/candidate">
+            <CIcon icon={cilPeople} className="me-2" />
+            Candidate
+          </CDropdownItem>
+        )} */}
+
         <CDropdownItem href="#" onClick={handleLogout}>
           <CIcon icon={cilAccountLogout} className="me-2" />
           Logout
