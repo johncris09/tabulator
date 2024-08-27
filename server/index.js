@@ -39,7 +39,7 @@ app.use("/monitor",  monitorRoute);
 
 
 app.get('/', (req, res) => {
-    res.send("Weclome to the Server")
+    res.send("Welcome to the Server")
 })
 app.listen(PORT, () => {
     console.log("Server listening on port " + PORT)
