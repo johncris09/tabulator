@@ -86,9 +86,8 @@ const ProductionNumber = ({ userInfo }) => {
           [candidateId]: '',
         }))
       }
-
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + table}`, {
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else if (score < 1 || score > 10) {
@@ -115,8 +114,9 @@ const ProductionNumber = ({ userInfo }) => {
           [candidateId]: prevScores,
         }))
       }
+
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + table}`, {
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else {
@@ -142,7 +142,7 @@ const ProductionNumber = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      const response = await axios.post(`${ip + table}`, scoreData)
+      await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -638,11 +638,11 @@ const ProductionNumber = ({ userInfo }) => {
                     <CTableRow key={row.id} className="text-center">
                       <CTableDataCell className="text-left">{row.number}</CTableDataCell>
                       <CTableDataCell className="text-left">{row.name}</CTableDataCell>
-                      <CTableDataCell>{row.judge1}</CTableDataCell>
-                      <CTableDataCell>{row.judge2}</CTableDataCell>
-                      <CTableDataCell>{row.judge3}</CTableDataCell>
-                      <CTableDataCell>{row.judge4}</CTableDataCell>
-                      <CTableDataCell>{row.judge5}</CTableDataCell>
+                      <CTableDataCell>{!row.judge1_score == '' && row.judge1}</CTableDataCell>
+                      <CTableDataCell>{!row.judge2_score == '' && row.judge2}</CTableDataCell>
+                      <CTableDataCell>{!row.judge3_score == '' && row.judge3}</CTableDataCell>
+                      <CTableDataCell>{!row.judge4_score == '' && row.judge4}</CTableDataCell>
+                      <CTableDataCell>{!row.judge5_score == '' && row.judge5}</CTableDataCell>
                       <CTableDataCell>{row.total_score}</CTableDataCell>
                       <CTableDataCell>{row.final_rank}</CTableDataCell>
                     </CTableRow>
@@ -710,7 +710,9 @@ const ProductionNumber = ({ userInfo }) => {
                           }
                         />
                       </CTableDataCell>
-                      <CTableDataCell>{candidateInfo.pa_rank}</CTableDataCell>
+                      <CTableDataCell>
+                        {!candidateInfo.pa_score == '' && candidateInfo.pa_rank}
+                      </CTableDataCell>
                       <CTableDataCell>
                         <CFormInput
                           className="text-center"

@@ -514,11 +514,11 @@ const TalentPresentation = ({ userInfo }) => {
                     <CTableRow key={row.id} className="text-center">
                       <CTableDataCell className="text-left">{row.number}</CTableDataCell>
                       <CTableDataCell className="text-left">{row.name}</CTableDataCell>
-                      <CTableDataCell>{row.judge1}</CTableDataCell>
-                      <CTableDataCell>{row.judge2}</CTableDataCell>
-                      <CTableDataCell>{row.judge3}</CTableDataCell>
-                      <CTableDataCell>{row.judge4}</CTableDataCell>
-                      <CTableDataCell>{row.judge5}</CTableDataCell>
+                      <CTableDataCell>{!row.judge1_score == '' && row.judge1}</CTableDataCell>
+                      <CTableDataCell>{!row.judge2_score == '' && row.judge2}</CTableDataCell>
+                      <CTableDataCell>{!row.judge3_score == '' && row.judge3}</CTableDataCell>
+                      <CTableDataCell>{!row.judge4_score == '' && row.judge4}</CTableDataCell>
+                      <CTableDataCell>{!row.judge5_score == '' && row.judge5}</CTableDataCell>
                       <CTableDataCell>{row.total_score}</CTableDataCell>
                       <CTableDataCell>{row.final_rank}</CTableDataCell>
                     </CTableRow>

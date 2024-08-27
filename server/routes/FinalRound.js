@@ -89,7 +89,7 @@ router.get("/final_result", async (req, res, next) => {
             rank: ranks[candidateRank],
           });
         }
-      } 5
+      }
 
       res.json(processedResult);
     });
@@ -499,8 +499,30 @@ router.post("/", async (req, res, next) => {
 
       // total all the score and display insert to judge where id is 0
       const scoreQuery = `
-    SELECT
-      t2.id,
+        SELECT
+          t2.id,
+          MAX(
+              CASE WHEN judge =(
+              SELECT
+                  id
+              FROM
+                  user
+              WHERE
+                  judge_no = "judge1"
+          ) THEN rank
+              END
+          ) AS judge1,
+          MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge2"
+      ) THEN rank
+      END
+      ) AS judge2,
       MAX(
           CASE WHEN judge =(
           SELECT
@@ -508,63 +530,41 @@ router.post("/", async (req, res, next) => {
           FROM
               user
           WHERE
-              judge_no = "judge1"
+              judge_no = "judge3"
       ) THEN rank
       END
-  ) AS judge1,
-  MAX(
-      CASE WHEN judge =(
-      SELECT
-          id
+      ) AS judge3,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge4"
+      ) THEN rank
+      END
+      ) AS judge4,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge5"
+      ) THEN rank
+      END
+      ) AS judge5,
+      SUM(t1.rank) AS total_score
       FROM
-          user
-      WHERE
-          judge_no = "judge2"
-  ) THEN rank
-  END
-  ) AS judge2,
-  MAX(
-      CASE WHEN judge =(
-      SELECT
-          id
-      FROM
-          user
-      WHERE
-          judge_no = "judge3"
-  ) THEN rank
-  END
-  ) AS judge3,
-  MAX(
-      CASE WHEN judge =(
-      SELECT
-          id
-      FROM
-          user
-      WHERE
-          judge_no = "judge4"
-  ) THEN rank
-  END
-  ) AS judge4,
-  MAX(
-      CASE WHEN judge =(
-      SELECT
-          id
-      FROM
-          user
-      WHERE
-          judge_no = "judge5"
-  ) THEN rank
-  END
-  ) AS judge5,
-  SUM(t1.rank) AS total_score
-  FROM
-      final_round t1
-  JOIN candidate t2 ON
-      t1.candidate = t2.id AND t1.judge != 0
-  GROUP BY
-      t2.id
-  ORDER BY
-    t1.candidate;`;
+          final_round t1
+      JOIN candidate t2 ON
+          t1.candidate = t2.id AND t1.judge != 0
+      GROUP BY
+          t2.id
+      ORDER BY
+        t1.candidate;`;
 
       db.query(scoreQuery, (err, result) => {
         if (err) {
@@ -574,7 +574,7 @@ router.post("/", async (req, res, next) => {
         }
 
         result.forEach(async (row) => {
-          console.log(row);
+          
           // Query to check if the record exists for the given judgeId and candidateId
           const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
           // Use a Promise to handle the database query asynchronously
@@ -632,7 +632,7 @@ router.post("/lockScore", async (req, res, next) => {
 });
 
 
-// update scoare of the candidate of that judge
+// update score of the candidate of that judge
 router.post("/update", async (req, res, next) => {
   try {
     const { judgeId, candidateId } = req.body;

@@ -11,6 +11,29 @@ router.get("/", async (req, res, next) => {
   });
 });
 
+router.get("/insert_score", (req, res) => {
+  const judgeIds = [0, 2, 4, 5, 6, 7];
+  const candidateIds = Array.from({ length: 17 }, (_, i) => i + 1);
+
+  db.query(`truncate ${table}`, (err, result) => {
+    if (err) throw err;
+  });
+
+  judgeIds.forEach((judgeId) => {
+    candidateIds.forEach((candidateId) => {
+      const sql = `INSERT INTO ${table} (candidate, judge, score, rank, status) VALUES (?, ?, NULL, NULL, 'unlocked')`;
+      db.query(sql, [candidateId, judgeId], (err, result) => {
+        if (err) throw err;
+        console.log(
+          `Inserted for Judge ID: ${judgeId}, Candidate ID: ${candidateId}`
+        );
+      });
+    });
+  });
+
+  res.send("Insert operations completed.");
+});
+
 router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
@@ -20,15 +43,20 @@ router.get("/getJudgeScore", async (req, res, next) => {
         c.id as id,
         c.number as number,
         c.name as name,
-        ev.score as ev_score,
-        ev.rank as ev_rank,
-        ev.status as ev_status,
+        pa.score as pa_score,
+        pa.rank as pa_rank,
+        pa.status as pa_status,
+        pn.score as pn_score,
+        pn.rank as pn_rank,
+        pn.status as pn_status,
         tf.score as tf_score,
         tf.rank as tf_rank
     FROM
         candidate c
-    LEFT JOIN ${table} ev ON
-        ev.candidate = c.id AND ev.judge = ?
+    LEFT JOIN production_attire pa ON
+        pa.candidate = c.id AND pa.judge = ?
+    LEFT JOIN ${table} pn ON
+        pn.candidate = c.id AND pn.judge = ?
     LEFT JOIN top_five tf ON
         tf.candidate = c.id AND tf.judge = ?
     ORDER BY
@@ -51,10 +79,10 @@ router.get("/final_result", async (req, res, next) => {
           candidate.number,
           candidate.sponsor,
           candidate.name,
-          evening_gown.rank
+          production_number.rank
       FROM
           candidate
-      JOIN evening_gown ON evening_gown.candidate = candidate.id
+      JOIN production_number ON production_number.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
       group by candidate.id
@@ -153,11 +181,10 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
 
 router.get("/getAllJudgeScores", async (req, res, next) => {
   try {
-    // return true
     const query = `
         SELECT * FROM ${table},  candidate
         where judge != 0 
-        and candidate.id = evening_gown.candidate
+        and candidate.id = production_number.candidate
         order by judge, candidate asc;`;
 
     db.query(query, (err, result) => {
@@ -260,95 +287,182 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         c.name as name,
         c.name AS candidate,
         MAX(
-            CASE
-                WHEN ev.judge = 2 THEN ev.rank
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge1"
+            ) THEN score
+            END
+        ) AS judge1_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge2"
+            ) THEN score
+            END
+        ) AS judge2_score,
+         
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge3"
+            ) THEN score
+            END
+        ) AS judge3_score,
+         
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge4"
+            ) THEN score
+            END
+        ) AS judge4_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge5"
+            ) THEN score
+            END
+        ) AS judge5_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge1"
+            ) THEN rank
             END
         ) AS judge1,
         MAX(
-            CASE
-                WHEN ev.judge = 4 THEN ev.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge2"
+        ) THEN rank
+        END
         ) AS judge2,
         MAX(
-            CASE
-                WHEN ev.judge = 5 THEN ev.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge3"
+        ) THEN rank
+        END
         ) AS judge3,
         MAX(
-            CASE
-                WHEN ev.judge = 6 THEN ev.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge4"
+        ) THEN rank
+        END
         ) AS judge4,
         MAX(
-            CASE
-                WHEN ev.judge = 7 THEN ev.rank
-            END
+            CASE WHEN judge =(
+            SELECT
+                id
+            FROM
+                user
+            WHERE
+                judge_no = "judge5"
+        ) THEN rank
+        END
         ) AS judge5,
         SUM(
             CASE
-                WHEN ev.judge = 0 THEN ev.score
+                WHEN tf.judge = 0 THEN tf.score
                 ELSE 0
             END
         ) AS total_score,
         MAX(
             CASE
-                WHEN ev.judge = 0 THEN ev.rank
+                WHEN tf.judge = 0 THEN tf.rank
                 else 0
             END
         ) AS final_rank,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge1')  THEN ev.status
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.status
             END
         ) AS judge1_status,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge2')  THEN ev.status
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.status
             END
         ) AS judge2_status,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge3')  THEN ev.status
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.status
             END
         ) AS judge3_status,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge4')  THEN ev.status
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.status
             END
         ) AS judge4_status,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge5')  THEN ev.status
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.status
             END
         ) AS judge5_status,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge1')  THEN ev.judge
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.judge
             END
         ) AS judge1_id,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge2')  THEN ev.judge
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.judge
             END
         ) AS judge2_id,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge3')  THEN ev.judge
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.judge
             END
         ) AS judge3_id,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge4')  THEN ev.judge
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.judge
             END
         ) AS judge4_id,
         MAX(
           CASE
-                WHEN ev.judge  =  (select id from user where judge_no = 'judge5')  THEN ev.judge
+                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.judge
             END
         ) AS judge5_id
       FROM
-          ${table} ev
-          JOIN candidate c ON ev.candidate = c.id
+          ${table} tf
+          JOIN candidate c ON tf.candidate = c.id
       GROUP BY
           c.name
       ORDER BY
@@ -368,38 +482,45 @@ router.post("/", async (req, res, next) => {
   try {
     const { judgeId, candidateId, score } = req.body;
 
+    // Update the existing record with the new score
+    const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+    const updateParams = [score, judgeId, candidateId];
+    await db.query(updateQuery, updateParams);
+
     // Query to check if the record exists for the given judgeId and candidateId
-    const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
+    // const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
 
-    // Use a Promise to handle the database query asynchronously
-    const numRows = new Promise((resolve, reject) => {
-      db.query(countQuery, [judgeId, candidateId], function (err, results) {
-        if (err) {
-          reject(err);
-        } else {
-          const length = results[0].numRows;
-          resolve(length);
-        }
-      });
-    });
+    // // Use a Promise to handle the database query asynchronously
+    // const numRows = new Promise((resolve, reject) => {
+    //   db.query(countQuery, [judgeId, candidateId], function (err, results) {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       const length = results[0].numRows;
+    //       resolve(length);
+    //     }
+    //   });
+    // });
 
-    // Await the Promise to get the result
-    const result = await numRows;
+    // // Await the Promise to get the result
+    // const result = await numRows;
 
-    if (result > 0) {
-      // Update the existing record with the new score
-      const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
-      const updateParams = [score, judgeId, candidateId];
-      await db.query(updateQuery, updateParams);
-    } else {
-      // Insert a new record with the judgeId, candidateId, and score
-      const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
-      const insertParams = [judgeId, candidateId, score];
-      await db.query(insertQuery, insertParams);
-    }
+    // console.info(result)
+    // if (result > 0) {
+    //   // Update the existing record with the new score
+    //   const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+    //   const updateParams = [score, judgeId, candidateId];
+    //   await db.query(updateQuery, updateParams);
+    // } else {
+    //   // Insert a new record with the judgeId, candidateId, and score
+    //   const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
+    //   const insertParams = [judgeId, candidateId, score];
+    //   await db.query(insertQuery, insertParams);
+    // }
 
     // update rank every time score is updated of that judge
     const query = `SELECT * FROM ${table} where judge = ?  ORDER BY score DESC`;
+
     // calculate ranking in specici judge and candidate
     db.query(query, [judgeId], (err, result) => {
       if (err) {
@@ -424,6 +545,7 @@ router.post("/", async (req, res, next) => {
           id: row.id,
           candidate: row.candidate,
           rank: rank,
+          score: row.score,
         });
 
         y.push(rank);
@@ -457,115 +579,118 @@ router.post("/", async (req, res, next) => {
       }
 
       x.forEach((row) => {
-        const updateQuery = `UPDATE ${table} SET rank = ? WHERE id = ?`;
-        const updateParams = [row.rank, row.id];
-        db.query(updateQuery, updateParams);
+        if (row.score) {
+          const updateQuery = `UPDATE ${table} SET rank = ? WHERE id = ?`;
+          const updateParams = [row.rank, row.id];
+          db.query(updateQuery, updateParams);
+        }
+      });
 
-        const scoreQuery = `
-            SELECT
-              t1.id,
-              MAX(
-                  CASE WHEN judge =(
-                  SELECT
-                      id
-                  FROM
-                      user
-                  WHERE
-                      judge_no = "judge1"
-              ) THEN rank
+      // total all the score and display insert to judge where id is 0
+      const scoreQuery = `
+        SELECT
+          t2.id,
+          MAX(
+              CASE WHEN judge =(
+              SELECT
+                  id
+              FROM
+                  user
+              WHERE
+                  judge_no = "judge1"
+          ) THEN rank
               END
           ) AS judge1,
           MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge2"
-          ) THEN rank
-          END
-          ) AS judge2,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge3"
-          ) THEN rank
-          END
-          ) AS judge3,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge4"
-          ) THEN rank
-          END
-          ) AS judge4,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge5"
-          ) THEN rank
-          END
-          ) AS judge5,
-          SUM(t2.rank) AS total_score
+          CASE WHEN judge =(
+          SELECT
+              id
           FROM
-              candidate t1
-          LEFT JOIN ${table} t2 ON
-              t1.id = t2.candidate AND t2.judge != 0
-          GROUP BY
-              t1.id
-          ORDER BY
-              t1.id   `;
+              user
+          WHERE
+              judge_no = "judge2"
+      ) THEN rank
+      END
+      ) AS judge2,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge3"
+      ) THEN rank
+      END
+      ) AS judge3,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge4"
+      ) THEN rank
+      END
+      ) AS judge4,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge5"
+      ) THEN rank
+      END
+      ) AS judge5,
+      SUM(t1.rank) AS total_score
+      FROM
+          production_number t1
+      JOIN candidate t2 ON
+          t1.candidate = t2.id AND t1.judge != 0
+      GROUP BY
+          t2.id
+      ORDER BY
+        t1.candidate;`;
 
-        db.query(scoreQuery, (err, result) => {
-          if (err) {
-            console.error("Error executing MySQL query:", err);
-            res.status(500).json({ error: "Internal Server Error" });
-            return;
-          }
+      db.query(scoreQuery, (err, result) => {
+        if (err) {
+          console.error("Error executing MySQL query:", err);
+          res.status(500).json({ error: "Internal Server Error" });
+          return;
+        }
 
-          result.forEach(async (row) => {
-            // Query to check if the record exists for the given judgeId and candidateId
-            const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
-            // // Use a Promise to handle the database query asynchronously
-            const numRows = new Promise((resolve, reject) => {
-              db.query(countQuery, [0, row.id], function (err, results) {
-                if (err) {
-                  reject(err);
-                } else {
-                  const length = results[0].numRows;
-                  resolve(length);
-                }
-              });
+        result.forEach(async (row) => {
+          // Query to check if the record exists for the given judgeId and candidateId
+          const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
+          // Use a Promise to handle the database query asynchronously
+          const numRows = new Promise((resolve, reject) => {
+            db.query(countQuery, [0, row.id], function (err, results) {
+              if (err) {
+                reject(err);
+              } else {
+                const length = results[0].numRows;
+                resolve(length);
+              }
             });
-
-            // Await the Promise to get the result
-            const result = await numRows;
-
-            if (result > 0) {
-              // Update the existing record with the new score
-              const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
-              const updateParams = [row.total_score, 0, row.id];
-              await db.query(updateQuery, updateParams);
-            } else {
-              // Insert a new record with the judgeId, candidateId, and score
-              const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
-              const insertParams = [0, row.id, row.total_score];
-              await db.query(insertQuery, insertParams);
-            }
           });
+
+          // Await the Promise to get the result
+          const result = await numRows;
+
+          if (result > 0) {
+            // Update the existing record with the new score
+            const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+            const updateParams = [row.total_score, 0, row.id];
+            await db.query(updateQuery, updateParams);
+          } else {
+            // Insert a new record with the judgeId, candidateId, and score
+            const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
+            const insertParams = [0, row.id, row.total_score];
+            await db.query(insertQuery, insertParams);
+          }
         });
       });
     });
@@ -576,14 +701,8 @@ router.post("/", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router.get("/rank", async (req, res, next) => {
-  try {
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-// tabulaltor will close once the score is submitted
+
+// tabulator will close once the score is submitted
 router.post("/lockScore", async (req, res, next) => {
   try {
     const { judgeId, status } = req.body;
@@ -593,6 +712,29 @@ router.post("/lockScore", async (req, res, next) => {
     db.query(updateQuery, updateParams);
 
     res.status(200).json({ message: "Score Submitted!" });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// update score of the candidate of that judge
+router.post("/update", async (req, res, next) => {
+  try {
+    const { judgeId, candidateId } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET score=?, rank=? WHERE judge = ? and candidate=?`;
+    const updateParams = [
+      null,
+      null,
+      req.body.params.judgeId,
+      req.body.params.candidateId,
+    ];
+    db.query(updateQuery, updateParams);
+    console.info(
+      `UPDATE ${table} SET score=null, rank=null WHERE judge = ${req.body.params.judgeId} and candidate=${req.body.params.candidateId}`
+    );
+    res.status(200).json({ message: "Score Updated!" });
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
