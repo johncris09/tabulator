@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import './../../../assets/css/custom.css'
 import { useNavigate } from 'react-router-dom'
 import {
   CButton,
@@ -74,10 +75,10 @@ const Login = () => {
   }
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div className="  min-vh-80 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol xs={12} sm={12} lg={6} xl={6}>
+          <CCol xs={12} sm={12} lg={5} xl={5}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>

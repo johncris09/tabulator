@@ -1,12 +1,11 @@
-
 .centerTextRowspan {
-    padding: 8px;
-    text-align: center; /* Horizontally center the content */
-    vertical-align: middle; /* Vertically center the content */
-  }
+  padding: 8px;
+  text-align: center; /* Horizontally center the content */
+  vertical-align: middle; /* Vertically center the content */
+}
 
 .userCriteriaTable {
-    font-size: 12px;
+  font-size: 12px;
 }
 .container {
   position: relative;
@@ -17,60 +16,58 @@
   bottom: 0;
 }
 
-
 @media print {
-
-  .imageHeaderPrint{
+  .imageHeaderPrint {
     /* margin-right: 50px; */
     width: 200px !important;
   }
-  .tableSummary{
+  .tableSummary {
     margin-left: 50px;
     margin-right: 50px;
     width: 1035px;
   }
-  .tablePerJudge{
+  .tablePerJudge {
     margin-left: 50px;
     margin-right: 50px;
-    width: 700px; 
+    width: 700px;
   }
 
-  .print-note{
+  .print-note {
     display: none;
   }
- 
+
   .talent_night_final_result_container {
     margin-top: 500px;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
   }
   /* for only 1 result */
-  .final_result_container_1 { 
+  .final_result_container_1 {
     margin-top: 600px;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
   }
   /* for 3 result */
-  .final_result_container_3 { 
+  .final_result_container_3 {
     margin-top: 550px;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
   }
   /* for 5 result */
-  .final_result_container_5 { 
+  .final_result_container_5 {
     margin-top: 550px;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
   }
-  .final_result_container_5 > table{
+  .final_result_container_5 > table {
     line-height: 14px;
   }
   .final_result_container {
     margin-top: 600px;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
   }
-  .tableFinalResult{
+  .tableFinalResult {
     /* margin-left: 50px;
     margin-right: 50px; */
     /* margin-left: 150px; */
@@ -78,7 +75,11 @@
 
     margin: 0 auto; /* or margin: 0 auto 0 auto */
   }
-  .printPerJudgePage{ 
-    page-break-before: always;  
+  .printPerJudgePage {
+    page-break-before: always;
   }
+}
+
+.min-vh-80 {
+  min-height: 80vh !important;
 }
