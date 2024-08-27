@@ -3,6 +3,9 @@ import db from "./../db.js";
 const router = express.Router();
 const table = "production_attire";
 
+// Dynamic generation of judge numbers
+const judgeNumbers = ["judge1", "judge2", "judge3", "judge4", "judge5"];
+
 router.get("/", async (req, res, next) => {
   const q = `SELECT * FROM ${table}`;
   db.query(q, (err, result) => {
@@ -10,7 +13,6 @@ router.get("/", async (req, res, next) => {
     res.json(result);
   });
 });
-
 
 router.get("/insert_score", (req, res) => {
   const judgeIds = [0, 2, 4, 5, 6, 7];
@@ -264,159 +266,52 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
       });
     });
 
-    const q = `SELECT
-        c.number as number,
-        c.name as name,
-        c.name AS candidate,
-        MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge1"
-            ) THEN score
-            END
-        ) AS judge1_score,
-        MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge2"
-            ) THEN score
-            END
-        ) AS judge2_score,
-        MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge3"
-            ) THEN score
-            END
-        ) AS judge3_score,
-        MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge4"
-            ) THEN score
-            END
-        ) AS judge4_score,
-        MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge5"
-            ) THEN score
-            END
-        ) AS judge5_score,
-        MAX(
-            CASE
-                WHEN pa.judge = 2 THEN pa.rank
-            END
-        ) AS judge1,
-        MAX(
-            CASE
-                WHEN pa.judge = 4 THEN pa.rank
-            END
-        ) AS judge2,
-        MAX(
-            CASE
-                WHEN pa.judge = 5 THEN pa.rank
-            END
-        ) AS judge3,
-        MAX(
-            CASE
-                WHEN pa.judge = 6 THEN pa.rank
-            END
-        ) AS judge4,
-        MAX(
-            CASE
-                WHEN pa.judge = 7 THEN pa.rank
-            END
-        ) AS judge5,
-        SUM(
-            CASE
-                WHEN pa.judge = 0 THEN pa.score
-                ELSE 0
-            END
-        ) AS total_score,
-        MAX(
-            CASE
-                WHEN pa.judge = 0 THEN pa.rank
-                else 0
-            END
-        ) AS final_rank,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge1')  THEN pa.status
-            END
-        ) AS judge1_status,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge2')  THEN pa.status
-            END
-        ) AS judge2_status,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge3')  THEN pa.status
-            END
-        ) AS judge3_status,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge4')  THEN pa.status
-            END
-        ) AS judge4_status,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge5')  THEN pa.status
-            END
-        ) AS judge5_status,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge1')  THEN pa.judge
-            END
-        ) AS judge1_id,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge2')  THEN pa.judge
-            END
-        ) AS judge2_id,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge3')  THEN pa.judge
-            END
-        ) AS judge3_id,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge4')  THEN pa.judge
-            END
-        ) AS judge4_id,
-        MAX(
-          CASE
-                WHEN pa.judge  =  (select id from user where judge_no = 'judge5')  THEN pa.judge
-            END
-        ) AS judge5_id
-      FROM
-          ${table} pa
-          JOIN candidate c ON pa.candidate = c.id
-      GROUP BY
-          c.name
-      ORDER BY
-      c.id ASC`;
+    const q = `
+        SELECT
+          c.number AS number,
+          c.name AS name,
+          c.name AS candidate,
+          ${judgeNumbers
+            .map(
+              (judgeNo) => `
+          MAX(
+            CASE WHEN judge = (
+            SELECT id FROM user WHERE judge_no = "${judgeNo}"
+            ) THEN score END
+          ) AS ${judgeNo}_score,
+          MAX(
+            CASE WHEN judge = (
+            SELECT id FROM user WHERE judge_no = "${judgeNo}"
+            ) THEN rank END
+          ) AS ${judgeNo},
+          MAX(
+            CASE WHEN tp.judge = (
+            SELECT id FROM user WHERE judge_no = "${judgeNo}"
+            ) THEN tp.status END
+          ) AS ${judgeNo}_status,
+          MAX(
+            CASE WHEN tp.judge = (
+            SELECT id FROM user WHERE judge_no = "${judgeNo}"
+            ) THEN tp.judge END
+          ) AS ${judgeNo}_id
+          `
+            )
+            .join(",")}
+          ,
+          SUM(
+              CASE WHEN tp.judge = 0 THEN tp.score ELSE 0 END
+          ) AS total_score,
+          MAX(
+              CASE WHEN tp.judge = 0 THEN tp.rank ELSE 0 END
+          ) AS final_rank
+        FROM
+            ${table} tp
+            JOIN candidate c ON tp.candidate = c.id
+        GROUP BY
+            c.name
+        ORDER BY
+            c.id ASC;
+      `;
 
     db.query(q, (err, result) => {
       if (err) throw err;
@@ -427,7 +322,6 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.post("/", async (req, res, next) => {
   try {
@@ -540,71 +434,27 @@ router.post("/", async (req, res, next) => {
       // total all the score and display insert to judge where id is 0
       const scoreQuery = `
         SELECT
-              t1.id,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge1"
-          ) THEN rank
-              END
-          ) AS judge1,
-          MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge2"
-      ) THEN rank
-      END
-      ) AS judge2,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge3"
-      ) THEN rank
-      END
-      ) AS judge3,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge4"
-      ) THEN rank
-      END
-      ) AS judge4,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge5"
-      ) THEN rank
-      END
-      ) AS judge5,
-      SUM(t2.rank) AS total_score
-      FROM
-          candidate t1
-      LEFT JOIN ${table} t2 ON
-          t1.id = t2.candidate AND t2.judge != 0
-      GROUP BY
-          t1.id
-      ORDER BY
-          t1.id   `;
+            t1.id,
+            ${judgeNumbers
+              .map(
+                (judgeNo) => `
+            MAX(
+                CASE WHEN judge = (
+                SELECT id FROM user WHERE judge_no = "${judgeNo}"
+                ) THEN rank END
+            ) AS ${judgeNo}`
+              )
+              .join(",")}
+            ,
+            SUM(t2.rank) AS total_score
+        FROM
+            candidate t1
+        LEFT JOIN ${table} t2 ON
+            t1.id = t2.candidate AND t2.judge != 0
+        GROUP BY
+            t1.id
+        ORDER BY
+            t1.id ASC; `;
 
       db.query(scoreQuery, (err, result) => {
         if (err) {
@@ -653,7 +503,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// tabulaltor will close once the score is submitted
+// Tabulator will close once the score is submitted
 router.post("/lockScore", async (req, res, next) => {
   try {
     const { judgeId, status } = req.body;

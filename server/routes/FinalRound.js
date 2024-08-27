@@ -3,6 +3,10 @@ import db from "./../db.js";
 const router = express.Router();
 const table = "final_round";
 
+// Dynamic generation of judge numbers
+const judgeNumbers = ["judge1", "judge2", "judge3", "judge4", "judge5"];
+
+
 router.get("/", async (req, res, next) => {
   const q = `SELECT * FROM ${table}`;
   db.query(q, (err, result) => {
@@ -42,7 +46,6 @@ router.get("/getJudgeScore", async (req, res, next) => {
   }
 });
 
-
 router.get("/final_result", async (req, res, next) => {
   try {
     const q = `
@@ -60,7 +63,6 @@ router.get("/final_result", async (req, res, next) => {
       group by candidate.id
       ORDER BY
           rank ASC;`;
-
 
     db.query(q, (err, result) => {
       if (err) {
@@ -98,7 +100,6 @@ router.get("/final_result", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   try {
@@ -500,71 +501,27 @@ router.post("/", async (req, res, next) => {
       // total all the score and display insert to judge where id is 0
       const scoreQuery = `
         SELECT
-          t2.id,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge1"
-          ) THEN rank
-              END
-          ) AS judge1,
-          MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge2"
-      ) THEN rank
-      END
-      ) AS judge2,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge3"
-      ) THEN rank
-      END
-      ) AS judge3,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge4"
-      ) THEN rank
-      END
-      ) AS judge4,
-      MAX(
-          CASE WHEN judge =(
-          SELECT
-              id
-          FROM
-              user
-          WHERE
-              judge_no = "judge5"
-      ) THEN rank
-      END
-      ) AS judge5,
-      SUM(t1.rank) AS total_score
-      FROM
-          final_round t1
-      JOIN candidate t2 ON
-          t1.candidate = t2.id AND t1.judge != 0
-      GROUP BY
-          t2.id
-      ORDER BY
-        t1.candidate;`;
+            t1.id,
+            ${judgeNumbers
+              .map(
+                (judgeNo) => `
+            MAX(
+                CASE WHEN judge = (
+                SELECT id FROM user WHERE judge_no = "${judgeNo}"
+                ) THEN rank END
+            ) AS ${judgeNo}`
+              )
+              .join(",")}
+            ,
+            SUM(t2.rank) AS total_score
+        FROM
+            candidate t1
+        LEFT JOIN ${table} t2 ON
+            t1.id = t2.candidate AND t2.judge != 0
+        GROUP BY
+            t1.id
+        ORDER BY
+            t1.id ASC; `;
 
       db.query(scoreQuery, (err, result) => {
         if (err) {
@@ -574,7 +531,6 @@ router.post("/", async (req, res, next) => {
         }
 
         result.forEach(async (row) => {
-          
           // Query to check if the record exists for the given judgeId and candidateId
           const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
           // Use a Promise to handle the database query asynchronously
@@ -608,7 +564,6 @@ router.post("/", async (req, res, next) => {
     });
 
     res.status(200).json({ message: "Score saved successfully!" });
-
   } catch (error) {
     console.error("Error saving score:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -630,7 +585,6 @@ router.post("/lockScore", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 // update score of the candidate of that judge
 router.post("/update", async (req, res, next) => {
@@ -668,7 +622,6 @@ router.delete("/", async (req, res, next) => {
     res.status(500).json({ error: "Error deleting data" });
   }
 });
-
 
 router.get("/rank", async (req, res, next) => {
   try {
