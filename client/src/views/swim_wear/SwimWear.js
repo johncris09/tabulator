@@ -77,7 +77,11 @@ const SwimWear = ({ userInfo }) => {
       }
 
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + table}`, {
+      // await axios.delete(`${ip + table}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else if (score < 1 || score > 10) {
@@ -100,7 +104,11 @@ const SwimWear = ({ userInfo }) => {
         }))
       }
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + table}`, {
+      // await axios.delete(`${ip + table}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else {
@@ -121,7 +129,7 @@ const SwimWear = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      const responsse = await axios.post(`${ip + table}`, scoreData)
+      await axios.post(`${ip + table}`, scoreData)
     }
   }
 
@@ -583,7 +591,10 @@ const SwimWear = ({ userInfo }) => {
                           }
                         />
                       </CTableDataCell>
-                      <CTableDataCell>{candidateInfo.sw_rank}</CTableDataCell>
+
+                      <CTableDataCell>
+                        {!candidateInfo.sw_score == '' && candidateInfo.sw_rank}
+                      </CTableDataCell>
                       <CTableDataCell>
                         <CFormInput
                           className="text-center"

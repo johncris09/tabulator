@@ -11,11 +11,41 @@ router.get("/", async (req, res, next) => {
   });
 });
 
+router.get("/insert_score", (req, res) => {
+  const judgeIds = [0, 2, 4, 5, 6, 7];
+  const candidateIds = Array.from({ length: 17 }, (_, i) => i + 1);
+
+  db.query(`truncate ${table}`, (err, result) => {
+    if (err) throw err;
+  });
+
+  judgeIds.forEach((judgeId) => {
+    candidateIds.forEach((candidateId) => {
+      const sql = `INSERT INTO ${table} (candidate, judge, score, rank, status) VALUES (?, ?, NULL, NULL, 'unlocked')`;
+      db.query(sql, [candidateId, judgeId], (err, result) => {
+        if (err) throw err;
+        console.log(
+          `Inserted for Judge ID: ${judgeId}, Candidate ID: ${candidateId}`
+        );
+      });
+    });
+  });
+
+  res.send("Insert operations completed.");
+});
+
 router.get("/getJudgeScore", async (req, res, next) => {
   try {
     const { judgeId } = req.query;
 
-    const q = `SELECT t1.number, t1.id, t2.judge, t2.score, t2.rank, t2.status  
+    const q = `
+      SELECT 
+        t1.number,
+        t1.id,
+        t2.judge,
+        t2.score,
+        t2.rank,
+        t2.status  
       FROM candidate t1  
       LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ?  
       GROUP BY t1.id;`;
@@ -74,7 +104,8 @@ router.get("/final_result", async (req, res, next) => {
             rank: ranks[candidateRank],
           });
         }
-      }5
+      }
+      5;
 
       res.json(processedResult);
     });
@@ -137,33 +168,6 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   }
 });
 
-router.get("/isInsertedToFinalRound", async (req, res, next) => {
-  try {
-    // return true
-    const query = `
-      SELECT count (*) as total_count from final_round`;
-
-    db.query(query, (err, result) => {
-      if (err) {
-        console.error("Error executing MySQL query:", err);
-        res.status(500).json({ error: "Internal Server Error" });
-        return;
-      }
-      // // Initialize the flag
-      let hasUnlockedStatus = false;
-      const total_count = result[0]["total_count"];
-
-      if (total_count) {
-        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
-      }
-
-      res.send(hasUnlockedStatus);
-    });
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 router.get("/getAllJudgeScores", async (req, res, next) => {
   try {
@@ -199,6 +203,8 @@ router.get("/getAllJudgeScores", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
   try {
@@ -273,6 +279,61 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         c.number as number,
         c.name as name,
         c.name AS candidate,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge1"
+            ) THEN score
+            END
+        ) AS judge1_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge2"
+            ) THEN score
+            END
+        ) AS judge2_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge3"
+            ) THEN score
+            END
+        ) AS judge3_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge4"
+            ) THEN score
+            END
+        ) AS judge4_score,
+        MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge5"
+            ) THEN score
+            END
+        ) AS judge5_score,
         MAX(
           CASE WHEN judge =(
           SELECT
@@ -408,42 +469,51 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
   }
 });
 
+
+
 router.post("/", async (req, res, next) => {
   try {
     const { judgeId, candidateId, score } = req.body;
 
+    // Update the existing record with the new score
+    const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+    const updateParams = [score, judgeId, candidateId];
+    await db.query(updateQuery, updateParams);
+
     // Query to check if the record exists for the given judgeId and candidateId
-    const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
+    // const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
 
-    // Use a Promise to handle the database query asynchronously
-    const numRows = new Promise((resolve, reject) => {
-      db.query(countQuery, [judgeId, candidateId], function (err, results) {
-        if (err) {
-          reject(err);
-        } else {
-          const length = results[0].numRows;
-          resolve(length);
-        }
-      });
-    });
+    // // Use a Promise to handle the database query asynchronously
+    // const numRows = new Promise((resolve, reject) => {
+    //   db.query(countQuery, [judgeId, candidateId], function (err, results) {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       const length = results[0].numRows;
+    //       resolve(length);
+    //     }
+    //   });
+    // });
 
-    // Await the Promise to get the result
-    const result = await numRows;
+    // // Await the Promise to get the result
+    // const result = await numRows;
 
-    if (result > 0) {
-      // Update the existing record with the new score
-      const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
-      const updateParams = [score, judgeId, candidateId];
-      await db.query(updateQuery, updateParams);
-    } else {
-      // Insert a new record with the judgeId, candidateId, and score
-      const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
-      const insertParams = [judgeId, candidateId, score];
-      await db.query(insertQuery, insertParams);
-    }
+    // console.info(result)
+    // if (result > 0) {
+    //   // Update the existing record with the new score
+    //   const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+    //   const updateParams = [score, judgeId, candidateId];
+    //   await db.query(updateQuery, updateParams);
+    // } else {
+    //   // Insert a new record with the judgeId, candidateId, and score
+    //   const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
+    //   const insertParams = [judgeId, candidateId, score];
+    //   await db.query(insertQuery, insertParams);
+    // }
 
     // update rank every time score is updated of that judge
     const query = `SELECT * FROM ${table} where judge = ?  ORDER BY score DESC`;
+
     // calculate ranking in specici judge and candidate
     db.query(query, [judgeId], (err, result) => {
       if (err) {
@@ -468,6 +538,7 @@ router.post("/", async (req, res, next) => {
           id: row.id,
           candidate: row.candidate,
           rank: rank,
+          score: row.score,
         });
 
         y.push(rank);
@@ -501,115 +572,118 @@ router.post("/", async (req, res, next) => {
       }
 
       x.forEach((row) => {
-        const updateQuery = `UPDATE ${table} SET rank = ? WHERE id = ?`;
-        const updateParams = [row.rank, row.id];
-        db.query(updateQuery, updateParams);
+        if (row.score) {
+          const updateQuery = `UPDATE ${table} SET rank = ? WHERE id = ?`;
+          const updateParams = [row.rank, row.id];
+          db.query(updateQuery, updateParams);
+        }
+      });
 
-        const scoreQuery = `
-            SELECT
+      // total all the score and display insert to judge where id is 0
+      const scoreQuery = `
+        SELECT
               t1.id,
-              MAX(
-                  CASE WHEN judge =(
-                  SELECT
-                      id
-                  FROM
-                      user
-                  WHERE
-                      judge_no = "judge1"
-              ) THEN rank
+          MAX(
+              CASE WHEN judge =(
+              SELECT
+                  id
+              FROM
+                  user
+              WHERE
+                  judge_no = "judge1"
+          ) THEN rank
               END
           ) AS judge1,
           MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge2"
-          ) THEN rank
-          END
-          ) AS judge2,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge3"
-          ) THEN rank
-          END
-          ) AS judge3,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge4"
-          ) THEN rank
-          END
-          ) AS judge4,
-          MAX(
-              CASE WHEN judge =(
-              SELECT
-                  id
-              FROM
-                  user
-              WHERE
-                  judge_no = "judge5"
-          ) THEN rank
-          END
-          ) AS judge5,
-          SUM(t2.rank) AS total_score
+          CASE WHEN judge =(
+          SELECT
+              id
           FROM
-              candidate t1
-          LEFT JOIN ${table} t2 ON
-              t1.id = t2.candidate AND t2.judge != 0
-          GROUP BY
-              t1.id
-          ORDER BY
-              t1.id   `;
+              user
+          WHERE
+              judge_no = "judge2"
+      ) THEN rank
+      END
+      ) AS judge2,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge3"
+      ) THEN rank
+      END
+      ) AS judge3,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge4"
+      ) THEN rank
+      END
+      ) AS judge4,
+      MAX(
+          CASE WHEN judge =(
+          SELECT
+              id
+          FROM
+              user
+          WHERE
+              judge_no = "judge5"
+      ) THEN rank
+      END
+      ) AS judge5,
+      SUM(t2.rank) AS total_score
+      FROM
+          candidate t1
+      LEFT JOIN ${table} t2 ON
+          t1.id = t2.candidate AND t2.judge != 0
+      GROUP BY
+          t1.id
+      ORDER BY
+          t1.id   `;
 
-        db.query(scoreQuery, (err, result) => {
-          if (err) {
-            console.error("Error executing MySQL query:", err);
-            res.status(500).json({ error: "Internal Server Error" });
-            return;
-          }
+      db.query(scoreQuery, (err, result) => {
+        if (err) {
+          console.error("Error executing MySQL query:", err);
+          res.status(500).json({ error: "Internal Server Error" });
+          return;
+        }
 
-          result.forEach(async (row) => {
-            // Query to check if the record exists for the given judgeId and candidateId
-            const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
-            // // Use a Promise to handle the database query asynchronously
-            const numRows = new Promise((resolve, reject) => {
-              db.query(countQuery, [0, row.id], function (err, results) {
-                if (err) {
-                  reject(err);
-                } else {
-                  const length = results[0].numRows;
-                  resolve(length);
-                }
-              });
+        result.forEach(async (row) => {
+          // Query to check if the record exists for the given judgeId and candidateId
+          const countQuery = `SELECT COUNT(*) AS numRows FROM ${table} WHERE judge = ? AND candidate = ?`;
+          // Use a Promise to handle the database query asynchronously
+          const numRows = new Promise((resolve, reject) => {
+            db.query(countQuery, [0, row.id], function (err, results) {
+              if (err) {
+                reject(err);
+              } else {
+                const length = results[0].numRows;
+                resolve(length);
+              }
             });
-
-            // Await the Promise to get the result
-            const result = await numRows;
-
-            if (result > 0) {
-              // Update the existing record with the new score
-              const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
-              const updateParams = [row.total_score, 0, row.id];
-              await db.query(updateQuery, updateParams);
-            } else {
-              // Insert a new record with the judgeId, candidateId, and score
-              const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
-              const insertParams = [0, row.id, row.total_score];
-              await db.query(insertQuery, insertParams);
-            }
           });
+
+          // Await the Promise to get the result
+          const result = await numRows;
+
+          if (result > 0) {
+            // Update the existing record with the new score
+            const updateQuery = `UPDATE ${table} SET score = ? WHERE judge = ? AND candidate = ?`;
+            const updateParams = [row.total_score, 0, row.id];
+            await db.query(updateQuery, updateParams);
+          } else {
+            // Insert a new record with the judgeId, candidateId, and score
+            const insertQuery = `INSERT INTO ${table} (judge, candidate, score) VALUES (?, ?, ?)`;
+            const insertParams = [0, row.id, row.total_score];
+            await db.query(insertQuery, insertParams);
+          }
         });
       });
     });
@@ -621,7 +695,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// tabulaltor will close once the score is submitted
+// tabulator will close once the score is submitted
 router.post("/lockScore", async (req, res, next) => {
   try {
     const { judgeId, status } = req.body;
@@ -636,6 +710,30 @@ router.post("/lockScore", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// update score of the candidate of that judge
+router.post("/update", async (req, res, next) => {
+  try {
+    const { judgeId, candidateId } = req.body;
+
+    const updateQuery = `UPDATE ${table} SET score=?, rank=? WHERE judge = ? and candidate=?`;
+    const updateParams = [
+      null,
+      null,
+      req.body.params.judgeId,
+      req.body.params.candidateId,
+    ];
+    db.query(updateQuery, updateParams);
+    console.info(
+      `UPDATE ${table} SET score=null, rank=null WHERE judge = ${req.body.params.judgeId} and candidate=${req.body.params.candidateId}`
+    );
+    res.status(200).json({ message: "Score Updated!" });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 router.delete("/", async (req, res, next) => {
   try {
@@ -753,6 +851,35 @@ router.post("/insertToFinalRound", async (req, res, next) => {
 
 router.get("/rank", async (req, res, next) => {
   try {
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/isInsertedToFinalRound", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+      SELECT count (*) as total_count from final_round`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      // // Initialize the flag
+      let hasUnlockedStatus = false;
+      const total_count = result[0]["total_count"];
+
+      if (total_count) {
+        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
+      }
+
+      res.send(hasUnlockedStatus);
+    });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal server error" });

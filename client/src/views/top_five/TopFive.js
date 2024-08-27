@@ -25,6 +25,7 @@ import './../../assets/css/custom.css'
 
 const TopFive = ({ userInfo }) => {
   const api = 'top_five'
+  const table = 'top_five'
   const inputRefs = useRef([])
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState([])
@@ -67,7 +68,10 @@ const TopFive = ({ userInfo }) => {
       }))
 
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + api}`, {
+      // await axios.delete(`${ip + api}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else if (score < 1 || score > 10) {
@@ -82,7 +86,10 @@ const TopFive = ({ userInfo }) => {
       }))
 
       // delete the score and rank of the candidate
-      await axios.delete(`${ip + api}`, {
+      // await axios.delete(`${ip + api}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+      await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
     } else {
@@ -96,7 +103,7 @@ const TopFive = ({ userInfo }) => {
         judgeId: judgeId,
         score: score,
       }
-      await axios.post(`${ip + api}`, scoreData)
+      axios.post(`${ip + api}`, scoreData)
     }
   }
   const handleSubmit = async () => {
@@ -580,7 +587,9 @@ const TopFive = ({ userInfo }) => {
                           }
                         />
                       </CTableDataCell>
-                      <CTableDataCell>{candidateInfo.rank}</CTableDataCell>
+                      <CTableDataCell>
+                        {!candidateInfo.score == '' && candidateInfo.rank}
+                      </CTableDataCell>
                     </CTableRow>
                   ))}
                 </>

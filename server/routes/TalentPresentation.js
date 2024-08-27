@@ -39,29 +39,17 @@ router.get("/getJudgeScore", async (req, res, next) => {
     const { judgeId } = req.query;
 
     const q = `
-    SELECT
-        c.id as id,
-        c.number as number,
-        c.name as name,
-        pa.score as pa_score,
-        pa.rank as pa_rank,
-        pa.status as pa_status,
-        pn.score as pn_score,
-        pn.rank as pn_rank,
-        pn.status as pn_status,
-        tf.score as tf_score,
-        tf.rank as tf_rank
-    FROM
-        candidate c
-    LEFT JOIN production_attire pa ON
-        pa.candidate = c.id AND pa.judge = ?
-    LEFT JOIN ${table} pn ON
-        pn.candidate = c.id AND pn.judge = ?
-    LEFT JOIN top_five tf ON
-        tf.candidate = c.id AND tf.judge = ?
-    ORDER BY
-    c.number`;
-    db.query(q, [judgeId, judgeId, judgeId], (err, result) => {
+      SELECT 
+        t1.number,
+        t1.id,
+        t2.judge,
+        t2.score,
+        t2.rank,
+        t2.status  
+      FROM candidate t1  
+      LEFT JOIN ${table} t2 ON t1.id = t2.candidate  AND t2.judge = ?  
+      GROUP BY t1.id;`;
+    db.query(q, [judgeId], (err, result) => {
       if (err) throw err;
       res.json(result);
     });
@@ -79,10 +67,10 @@ router.get("/final_result", async (req, res, next) => {
           candidate.number,
           candidate.sponsor,
           candidate.name,
-          production_number.rank
+          talent_presentation.rank
       FROM
           candidate
-      JOIN production_number ON production_number.candidate = candidate.id
+      JOIN talent_presentation ON talent_presentation.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
       group by candidate.id
@@ -96,7 +84,7 @@ router.get("/final_result", async (req, res, next) => {
         return;
       }
 
-      const maxRank = 1;
+      const maxRank = 5;
       const ranks = {};
       const processedResult = [];
 
@@ -117,6 +105,7 @@ router.get("/final_result", async (req, res, next) => {
           });
         }
       }
+      5;
 
       res.json(processedResult);
     });
@@ -179,12 +168,14 @@ router.get("/isAllJudgeDoneScoring", async (req, res, next) => {
   }
 });
 
+
 router.get("/getAllJudgeScores", async (req, res, next) => {
   try {
+    // return true
     const query = `
         SELECT * FROM ${table},  candidate
         where judge != 0 
-        and candidate.id = production_number.candidate
+        and candidate.id = talent_presentation.candidate
         order by judge, candidate asc;`;
 
     db.query(query, (err, result) => {
@@ -212,6 +203,8 @@ router.get("/getAllJudgeScores", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
   try {
@@ -308,7 +301,6 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
             ) THEN score
             END
         ) AS judge2_score,
-         
         MAX(
           CASE WHEN judge =(
           SELECT
@@ -320,7 +312,6 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
             ) THEN score
             END
         ) AS judge3_score,
-         
         MAX(
           CASE WHEN judge =(
           SELECT
@@ -400,69 +391,69 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         ) AS judge5,
         SUM(
             CASE
-                WHEN tf.judge = 0 THEN tf.score
+                WHEN tp.judge = 0 THEN tp.score
                 ELSE 0
             END
         ) AS total_score,
         MAX(
             CASE
-                WHEN tf.judge = 0 THEN tf.rank
+                WHEN tp.judge = 0 THEN tp.rank
                 else 0
             END
         ) AS final_rank,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.status
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge1')  THEN tp.status
             END
         ) AS judge1_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.status
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge2')  THEN tp.status
             END
         ) AS judge2_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.status
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge3')  THEN tp.status
             END
         ) AS judge3_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.status
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge4')  THEN tp.status
             END
         ) AS judge4_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.status
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge5')  THEN tp.status
             END
         ) AS judge5_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.judge
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge1')  THEN tp.judge
             END
         ) AS judge1_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.judge
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge2')  THEN tp.judge
             END
         ) AS judge2_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.judge
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge3')  THEN tp.judge
             END
         ) AS judge3_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.judge
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge4')  THEN tp.judge
             END
         ) AS judge4_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.judge
+                WHEN tp.judge  =  (select id from user where judge_no = 'judge5')  THEN tp.judge
             END
         ) AS judge5_id
       FROM
-          ${table} tf
-          JOIN candidate c ON tf.candidate = c.id
+          ${table} tp
+          JOIN candidate c ON tp.candidate = c.id
       GROUP BY
           c.name
       ORDER BY
@@ -477,6 +468,8 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
 
 router.post("/", async (req, res, next) => {
   try {
@@ -589,7 +582,7 @@ router.post("/", async (req, res, next) => {
       // total all the score and display insert to judge where id is 0
       const scoreQuery = `
         SELECT
-          t2.id,
+              t1.id,
           MAX(
               CASE WHEN judge =(
               SELECT
@@ -645,15 +638,15 @@ router.post("/", async (req, res, next) => {
       ) THEN rank
       END
       ) AS judge5,
-      SUM(t1.rank) AS total_score
+      SUM(t2.rank) AS total_score
       FROM
-          production_number t1
-      JOIN candidate t2 ON
-          t1.candidate = t2.id AND t1.judge != 0
+          candidate t1
+      LEFT JOIN ${table} t2 ON
+          t1.id = t2.candidate AND t2.judge != 0
       GROUP BY
-          t2.id
+          t1.id
       ORDER BY
-        t1.candidate;`;
+          t1.id   `;
 
       db.query(scoreQuery, (err, result) => {
         if (err) {
@@ -741,6 +734,7 @@ router.post("/update", async (req, res, next) => {
   }
 });
 
+
 router.delete("/", async (req, res, next) => {
   try {
     const { candidateId, judgeId } = req.query;
@@ -764,6 +758,35 @@ router.delete("/", async (req, res, next) => {
 
 router.get("/rank", async (req, res, next) => {
   try {
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/isInsertedToFinalRound", async (req, res, next) => {
+  try {
+    // return true
+    const query = `
+      SELECT count (*) as total_count from final_round`;
+
+    db.query(query, (err, result) => {
+      if (err) {
+        console.error("Error executing MySQL query:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+      // // Initialize the flag
+      let hasUnlockedStatus = false;
+      const total_count = result[0]["total_count"];
+
+      if (total_count) {
+        hasUnlockedStatus = true; // Set the flag if an unlocked status is found
+      }
+
+      res.send(hasUnlockedStatus);
+    });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).json({ error: "Internal server error" });

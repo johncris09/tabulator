@@ -43,20 +43,15 @@ router.get("/getJudgeScore", async (req, res, next) => {
         c.id as id,
         c.number as number,
         c.name as name,
-        pa.score as pa_score,
-        pa.rank as pa_rank,
-        pa.status as pa_status,
-        pn.score as pn_score,
-        pn.rank as pn_rank,
-        pn.status as pn_status,
+        ev.score as ev_score,
+        ev.rank as ev_rank,
+        ev.status as ev_status,
         tf.score as tf_score,
         tf.rank as tf_rank
     FROM
         candidate c
-    LEFT JOIN production_attire pa ON
-        pa.candidate = c.id AND pa.judge = ?
-    LEFT JOIN ${table} pn ON
-        pn.candidate = c.id AND pn.judge = ?
+    LEFT JOIN ${table} ev ON
+        ev.candidate = c.id AND ev.judge = ?
     LEFT JOIN top_five tf ON
         tf.candidate = c.id AND tf.judge = ?
     ORDER BY
@@ -79,10 +74,10 @@ router.get("/final_result", async (req, res, next) => {
           candidate.number,
           candidate.sponsor,
           candidate.name,
-          production_number.rank
+          evening_gown.rank
       FROM
           candidate
-      JOIN production_number ON production_number.candidate = candidate.id
+      JOIN evening_gown ON evening_gown.candidate = candidate.id
       WHERE
           judge = 0 AND score != 0
       group by candidate.id
@@ -184,7 +179,7 @@ router.get("/getAllJudgeScores", async (req, res, next) => {
     const query = `
         SELECT * FROM ${table},  candidate
         where judge != 0 
-        and candidate.id = production_number.candidate
+        and candidate.id = evening_gown.candidate
         order by judge, candidate asc;`;
 
     db.query(query, (err, result) => {
@@ -400,69 +395,69 @@ router.get("/getConsolidatedScoreAndRank", async (req, res, next) => {
         ) AS judge5,
         SUM(
             CASE
-                WHEN tf.judge = 0 THEN tf.score
+                WHEN ev.judge = 0 THEN ev.score
                 ELSE 0
             END
         ) AS total_score,
         MAX(
             CASE
-                WHEN tf.judge = 0 THEN tf.rank
+                WHEN ev.judge = 0 THEN ev.rank
                 else 0
             END
         ) AS final_rank,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.status
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge1')  THEN ev.status
             END
         ) AS judge1_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.status
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge2')  THEN ev.status
             END
         ) AS judge2_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.status
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge3')  THEN ev.status
             END
         ) AS judge3_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.status
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge4')  THEN ev.status
             END
         ) AS judge4_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.status
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge5')  THEN ev.status
             END
         ) AS judge5_status,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge1')  THEN tf.judge
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge1')  THEN ev.judge
             END
         ) AS judge1_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge2')  THEN tf.judge
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge2')  THEN ev.judge
             END
         ) AS judge2_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge3')  THEN tf.judge
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge3')  THEN ev.judge
             END
         ) AS judge3_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge4')  THEN tf.judge
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge4')  THEN ev.judge
             END
         ) AS judge4_id,
         MAX(
           CASE
-                WHEN tf.judge  =  (select id from user where judge_no = 'judge5')  THEN tf.judge
+                WHEN ev.judge  =  (select id from user where judge_no = 'judge5')  THEN ev.judge
             END
         ) AS judge5_id
       FROM
-          ${table} tf
-          JOIN candidate c ON tf.candidate = c.id
+          ${table} ev
+          JOIN candidate c ON ev.candidate = c.id
       GROUP BY
           c.name
       ORDER BY
@@ -589,7 +584,7 @@ router.post("/", async (req, res, next) => {
       // total all the score and display insert to judge where id is 0
       const scoreQuery = `
         SELECT
-          t2.id,
+              t1.id,
           MAX(
               CASE WHEN judge =(
               SELECT
@@ -645,15 +640,15 @@ router.post("/", async (req, res, next) => {
       ) THEN rank
       END
       ) AS judge5,
-      SUM(t1.rank) AS total_score
+      SUM(t2.rank) AS total_score
       FROM
-          production_number t1
-      JOIN candidate t2 ON
-          t1.candidate = t2.id AND t1.judge != 0
+          candidate t1
+      LEFT JOIN ${table} t2 ON
+          t1.id = t2.candidate AND t2.judge != 0
       GROUP BY
-          t2.id
+          t1.id
       ORDER BY
-        t1.candidate;`;
+          t1.id   `;
 
       db.query(scoreQuery, (err, result) => {
         if (err) {

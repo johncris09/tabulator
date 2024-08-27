@@ -86,7 +86,12 @@ const ProductionNumber = ({ userInfo }) => {
           [candidateId]: '',
         }))
       }
+
       // delete the score and rank of the candidate
+      // await axios.delete(`${ip + table}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+
       await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
@@ -114,8 +119,11 @@ const ProductionNumber = ({ userInfo }) => {
           [candidateId]: prevScores,
         }))
       }
-
       // delete the score and rank of the candidate
+      // await axios.delete(`${ip + table}`, {
+      //   params: { candidateId: candidateId, judgeId: judgeId },
+      // })
+
       await axios.post(`${ip + table}/update`, {
         params: { candidateId: candidateId, judgeId: judgeId },
       })
@@ -681,7 +689,9 @@ const ProductionNumber = ({ userInfo }) => {
                           }
                         />
                       </CTableDataCell>
-                      <CTableDataCell>{candidateInfo.pn_rank}</CTableDataCell>
+                      <CTableDataCell>
+                        {!candidateInfo.pn_score == '' && candidateInfo.pn_rank}
+                      </CTableDataCell>
                       <CTableDataCell>
                         <CFormInput
                           ref={(ref) => handleProductionAttireRef(index, ref)}
@@ -736,7 +746,10 @@ const ProductionNumber = ({ userInfo }) => {
                           }
                         />
                       </CTableDataCell>
-                      <CTableDataCell>{candidateInfo.tf_rank}</CTableDataCell>
+
+                      <CTableDataCell>
+                        {!candidateInfo.tf_score == '' && candidateInfo.tf_rank}
+                      </CTableDataCell>
                     </CTableRow>
                   ))}
                 </>

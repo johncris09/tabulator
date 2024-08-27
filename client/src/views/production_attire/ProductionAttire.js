@@ -186,7 +186,7 @@ const ProductionAttire = ({ userInfo }) => {
           </CRow>
         </CCardHeader>
         <CCardBody>
-          <CTable responsive striped hover bordered borderColor={'info'} small>
+          <CTable responsive striped hover bordered borderColor={'info'}>
             <CTableHead color="info" stripedColumns>
               <CTableRow className="text-center">
                 <CTableHeaderCell rowSpan={2} scope="col" className="centerTextRowspan">
